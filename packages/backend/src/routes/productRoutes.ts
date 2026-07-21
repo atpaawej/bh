@@ -1,0 +1,66 @@
+// ── Product Routes ──
+
+import { Router } from 'express'
+import { createProductSchema } from '../validators/productSchema'
+import { authMiddleware } from '../middleware/auth'
+import { validate } from '../middleware/validate'
+import { voteLimiter } from '../middleware/rateLimiter'
+import { asyncHandler } from '../middleware/asyncHandler'
+import { productService } from '../services/productService'
+
+const router = Router()
+
+router.get('/', asyncHandler(async (req, res) => {
+  const { cursor, category, week } = req.query as any
+  const products = await productService.list({ cursor, category, week })
+  res.json(products)
+}))
+
+router.get('/:slug', asyncHandler(async (req, res) => {
+  const product = await productService.getBySlug(req.params.slug)
+  res.json(product)
+}))
+
+router.post('/',
+  authMiddleware,
+  validate(createProductSchema),
+  asyncHandler(async (req, res) => {
+    const product = await productService.create(req.user!.id, req.body)
+    res.status(201).json(product)
+  })
+)
+
+router.patch('/:slug',
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    const product = await productService.update(req.user!.id, req.params.slug, req.body)
+    res.json(product)
+  })
+)
+
+router.delete('/:slug',
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    await productService.remove(req.user!.id, req.params.slug)
+    res.status(204).send()
+  })
+)
+
+router.post('/:slug/vote',
+  authMiddleware,
+  voteLimiter,
+  asyncHandler(async (req, res) => {
+    const vote = await productService.vote(req.user!.id, req.params.slug)
+    res.json(vote)
+  })
+)
+
+router.delete('/:slug/vote',
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    await productService.unvote(req.user!.id, req.params.slug)
+    res.status(204).send()
+  })
+)
+
+export default router
