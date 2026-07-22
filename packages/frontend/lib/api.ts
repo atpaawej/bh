@@ -1,6 +1,7 @@
 import type {
   AuthSessionResponse,
   CategoryResponse,
+  CreateProductInput,
   MagicLinkResponse,
   OAuthUrlResponse,
   PaginatedResponse,
@@ -112,6 +113,53 @@ export function fetchCategories(): Promise<CategoryResponse[]> {
 
 export function fetchProductBySlug(slug: string): Promise<ProductResponse> {
   return request(`/products/${encodeURIComponent(slug)}`)
+}
+
+/** Fetches a product for editing — returns drafts for the owner. */
+export function fetchProductForEdit(slug: string): Promise<ProductResponse> {
+  return request(`/products/${encodeURIComponent(slug)}/edit`)
+}
+
+// ── Product CRUD ──
+
+export function createProduct(input: CreateProductInput): Promise<ProductResponse> {
+  return request('/products', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function updateProduct(
+  slug: string,
+  input: Partial<CreateProductInput>
+): Promise<ProductResponse> {
+  return request(`/products/${encodeURIComponent(slug)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  })
+}
+
+export function deleteProduct(slug: string): Promise<void> {
+  return request(`/products/${encodeURIComponent(slug)}`, {
+    method: 'DELETE',
+  })
+}
+
+export interface SignedUploadUrl {
+  url: string
+  publicId: string
+  signature: string
+  timestamp: number
+  cloudName: string
+  apiKey: string
+}
+
+/**
+ * Fetches a signed Cloudinary upload URL for a given folder type.
+ * The frontend then uses this to upload files directly to Cloudinary.
+ */
+export function fetchUploadUrl(folder: 'logos' | 'heroes' | 'gallery'): Promise<SignedUploadUrl> {
+  return request(`/products/upload-url?folder=${encodeURIComponent(folder)}`)
 }
 
 // ── Auth ──
