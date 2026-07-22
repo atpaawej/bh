@@ -5,11 +5,12 @@
     "moduleResolution": "bundler",
     "strict": true,
     "esModuleInterop": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
     "skipLibCheck": true
   },
-  "include": ["index.ts", "lib", "tests"]
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/backend" },
+    { "path": "./packages/frontend" }
+  ],
+  "files": []
 }

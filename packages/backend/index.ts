@@ -1,11 +1,11 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
-import { config } from './config'
-import { errorHandler } from './middleware/errorHandler'
-import { apiLimiter } from './middleware/rateLimiter'
-import productRoutes from './routes/productRoutes'
-import categoryRoutes from './routes/categoryRoutes'
+import { config } from './lib/config'
+import { errorHandler } from './lib/middleware/errorHandler'
+import { apiLimiter } from './lib/middleware/rateLimiter'
+import productRoutes from './lib/routes/productRoutes'
+import categoryRoutes from './lib/routes/categoryRoutes'
 
 const app = express()
 

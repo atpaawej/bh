@@ -9,14 +9,16 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
-    "lint": "turbo lint",
+    "lint": "turbo lint && npm run lint:boundaries",
+    "lint:boundaries": "depcruise packages",
     "test": "turbo test",
     "format": "prettier --write \"packages/**/*.{ts,tsx,json}\"",
     "clean": "turbo clean"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
+    "dependency-cruiser": "^18.1.0",
     "prettier": "^3.0.0",
+    "turbo": "^2.0.0",
     "typescript": "^5.5.0"
   },
   "packageManager": "npm@10.8.0",
