@@ -14,3 +14,15 @@ export type {
 } from './lib/types'
 export { CATEGORIES } from './lib/constants'
 export type { CategorySlug } from './lib/constants'
+export type { WeekRange } from './lib/week'
+export {
+  getWeekRange,
+  getIsoWeeksInYear,
+  getCurrentIsoWeek,
+  getWeekRangeFromIsoWeek,
+  resolveWeekRange,
+  getPrevWeek,
+  getNextWeek,
+  formatWeekLabel,
+  isCurrentWeek,
+} from './lib/week'

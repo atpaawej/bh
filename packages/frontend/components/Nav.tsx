@@ -22,8 +22,14 @@ export function Nav() {
           <Link href="/launch" className="text-sm font-medium text-ink">
             Launch
           </Link>
-          <Link href="/leaderboard" className="text-sm font-medium text-ink">
+          <Link
+            href="/leaderboard"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-ink"
+          >
             Leaderboard
+            <span className="rounded-full bg-deep-green/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-deep-green">
+              Live
+            </span>
           </Link>
           <span className="text-sm text-muted">Categories</span>
           <LaunchNavLink />

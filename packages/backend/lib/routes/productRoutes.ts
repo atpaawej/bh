@@ -15,11 +15,22 @@ import { generateSignedUploadUrl } from "../services/cloudinaryService";
 
 const router = Router();
 
+const productListQuerySchema = z.object({
+  cursor: z.string().optional(),
+  category: z.string().optional(),
+  week: z
+    .string()
+    .regex(/^\d{4}-W\d{2}$/, "Expected YYYY-Wnn format (e.g. 2026-W30)")
+    .optional(),
+});
+
 router.get(
   "/",
   optionalAuthMiddleware,
   asyncHandler(async (req, res) => {
-    const { cursor, category, week } = req.query as any;
+    const { cursor, category, week } = productListQuerySchema.parse(
+      req.query,
+    );
     const products = await productService.list({
       cursor,
       category,
