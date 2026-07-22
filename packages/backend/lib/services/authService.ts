@@ -1,11 +1,15 @@
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
-import { createClient } from '@supabase/supabase-js'
 import { db } from '../db'
 import { config } from '../config'
 import { AppError } from '../middleware/errorHandler'
 import { getSupabaseAnon, getSupabaseAdmin } from '../supabase'
 import type { AuthUser } from '../middleware/auth'
+
+type SupabaseUserLike = {
+  email?: string | null
+  user_metadata?: Record<string, unknown> | null
+}
 
 export type OAuthProvider = 'google' | 'github'
 
@@ -23,37 +27,77 @@ export interface OAuthStart {
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
 
-/** In-memory storage so we can capture/seed the PKCE code verifier. */
-function createMemoryStorage(seed: Record<string, string> = {}) {
-  const map = new Map<string, string>(Object.entries(seed))
-  return {
-    getItem: (key: string) => map.get(key) ?? null,
-    setItem: (key: string, value: string) => {
-      map.set(key, value)
+/**
+ * PKCE helpers — implemented ourselves because supabase-js ignores custom
+ * storage when persistSession is false (it uses an internal memory map we
+ * cannot read across the OAuth redirect round-trip).
+ */
+function generatePkcePair(): { verifier: string; challenge: string } {
+  const verifier = crypto.randomBytes(32).toString('base64url')
+  const challenge = crypto.createHash('sha256').update(verifier).digest('base64url')
+  return { verifier, challenge }
+}
+
+function buildOAuthAuthorizeUrl(
+  provider: OAuthProvider,
+  redirectTo: string,
+  codeChallenge: string
+): string {
+  const params = new URLSearchParams({
+    provider,
+    redirect_to: redirectTo,
+    code_challenge: codeChallenge,
+    code_challenge_method: 's256',
+  })
+  return `${config.SUPABASE_URL}/auth/v1/authorize?${params.toString()}`
+}
+
+async function exchangePkceCode(
+  code: string,
+  codeVerifier: string
+): Promise<{ user: SupabaseUserLike & { email?: string | null } }> {
+  const res = await fetch(`${config.SUPABASE_URL}/auth/v1/token?grant_type=pkce`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: config.SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${config.SUPABASE_ANON_KEY}`,
     },
-    removeItem: (key: string) => {
-      map.delete(key)
-    },
-    /** Test helper / internal read of all keys */
-    _map: map,
+    body: JSON.stringify({
+      auth_code: code,
+      code_verifier: codeVerifier,
+    }),
+  })
+
+  const body = (await res.json().catch(() => ({}))) as {
+    error?: string
+    error_description?: string
+    msg?: string
+    user?: SupabaseUserLike & { email?: string | null }
+    access_token?: string
   }
-}
 
-function supabaseProjectRef(): string {
-  try {
-    return new URL(config.SUPABASE_URL).hostname.split('.')[0] ?? 'supabase'
-  } catch {
-    return 'supabase'
+  if (!res.ok) {
+    throw AppError.unauthorized(
+      body.error_description || body.msg || body.error || 'Invalid or expired auth code'
+    )
   }
-}
 
-function codeVerifierStorageKey(): string {
-  return `sb-${supabaseProjectRef()}-auth-token-code-verifier`
-}
+  // Token response may nest user under different shapes; fall back to getUser
+  if (body.user?.email) {
+    return { user: body.user }
+  }
 
-type SupabaseUserLike = {
-  email?: string | null
-  user_metadata?: Record<string, unknown> | null
+  if (body.access_token) {
+    const admin = getSupabaseAdmin()
+    const { data, error } = await admin.auth.getUser(body.access_token)
+    if (error || !data.user) {
+      throw AppError.unauthorized(error?.message ?? 'Unable to load user after OAuth')
+    }
+    return { user: data.user }
+  }
+
+  throw AppError.unauthorized('Invalid or expired auth code')
 }
 
 function displayName(user: SupabaseUserLike, email: string): string {
@@ -168,37 +212,13 @@ export const authService = {
    * The verifier must be stored (HTTP-only cookie) and sent back on code exchange.
    */
   async getOAuthUrl(provider: OAuthProvider): Promise<OAuthStart> {
-    const storage = createMemoryStorage()
-    const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY, {
-      auth: {
-        storage,
-        flowType: 'pkce',
-        autoRefreshToken: false,
-        persistSession: false,
-        detectSessionInUrl: false,
-      },
-    })
-
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { verifier, challenge } = generatePkcePair()
+    const url = buildOAuthAuthorizeUrl(
       provider,
-      options: {
-        redirectTo: `${config.FRONTEND_URL}/auth/callback`,
-        skipBrowserRedirect: true,
-      },
-    })
-
-    if (error || !data.url) {
-      throw AppError.validation(error?.message ?? 'Unable to start OAuth login')
-    }
-
-    const rawVerifier = storage.getItem(codeVerifierStorageKey())
-    // supabase may store "verifier" or "verifier/redirectType"
-    const codeVerifier = (rawVerifier ?? '').split('/')[0]
-    if (!codeVerifier) {
-      throw AppError.validation('Failed to initialize OAuth PKCE verifier')
-    }
-
-    return { url: data.url, codeVerifier }
+      `${config.FRONTEND_URL}/auth/callback`,
+      challenge
+    )
+    return { url, codeVerifier: verifier }
   },
 
   async sendMagicLink(email: string): Promise<void> {
@@ -216,30 +236,14 @@ export const authService = {
   },
 
   async completeWithCode(code: string, codeVerifier?: string): Promise<AuthSession> {
-    let supabase = getSupabaseAnon()
-
-    if (codeVerifier) {
-      const storage = createMemoryStorage({
-        [codeVerifierStorageKey()]: codeVerifier,
-      })
-      supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY, {
-        auth: {
-          storage,
-          flowType: 'pkce',
-          autoRefreshToken: false,
-          persistSession: false,
-          detectSessionInUrl: false,
-        },
-      })
+    if (!codeVerifier) {
+      throw AppError.unauthorized(
+        'Missing PKCE verifier — restart sign-in from the login page (cookies may have been cleared)'
+      )
     }
 
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-
-    if (error || !data.user) {
-      throw AppError.unauthorized(error?.message ?? 'Invalid or expired auth code')
-    }
-
-    const user = await upsertUserFromSupabase(data.user)
+    const { user: supabaseUser } = await exchangePkceCode(code, codeVerifier)
+    const user = await upsertUserFromSupabase(supabaseUser)
     return issueSession(user)
   },
 

@@ -1,11 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { authService } from './authService'
 import { db } from '../db'
 import { AppError } from '../middleware/errorHandler'
 import { getSupabaseAnon, getSupabaseAdmin } from '../supabase'
 import jwt from 'jsonwebtoken'
 import { config } from '../config'
-import { createClient } from '@supabase/supabase-js'
 
 vi.mock('../db', () => ({
   db: {
@@ -29,12 +28,6 @@ vi.mock('../supabase', () => ({
   getSupabaseAdmin: vi.fn(),
 }))
 
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn(),
-}))
-
-const mockCreateClient = vi.mocked(createClient)
-
 const findUser = vi.mocked(db.user.findUnique)
 const createUser = vi.mocked(db.user.create)
 const updateUser = vi.mocked(db.user.update)
@@ -44,6 +37,9 @@ const deleteRefresh = vi.mocked(db.refreshToken.delete)
 const deleteManyRefresh = vi.mocked(db.refreshToken.deleteMany)
 const mockGetAnon = vi.mocked(getSupabaseAnon)
 const mockGetAdmin = vi.mocked(getSupabaseAdmin)
+
+const fetchMock = vi.fn()
+vi.stubGlobal('fetch', fetchMock)
 
 const now = new Date('2026-07-22T12:00:00.000Z')
 
@@ -91,84 +87,35 @@ describe('authService', () => {
     vi.setSystemTime(now)
   })
 
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   describe('getOAuthUrl', () => {
-    function mockOAuthClient(result: {
-      url: string | null
-      error: { message: string } | null
-      codeVerifier?: string
-    }) {
-      const storage = new Map<string, string>()
-      const client = {
-        auth: {
-          signInWithOAuth: vi.fn().mockImplementation(async () => {
-            if (result.codeVerifier) {
-              // Mimic supabase-js PKCE storage key shape
-              const ref = new URL(config.SUPABASE_URL).hostname.split('.')[0]
-              storage.set(`sb-${ref}-auth-token-code-verifier`, result.codeVerifier)
-            }
-            return {
-              data: { url: result.url, provider: 'google' },
-              error: result.error,
-            }
-          }),
-        },
-      }
-      mockCreateClient.mockImplementation(((
-        _url: string,
-        _key: string,
-        opts?: { auth?: { storage?: { setItem: (k: string, v: string) => void; getItem: (k: string) => string | null } } }
-      ) => {
-        // Bridge our mock storage into the real storage object the service creates
-        const realStorage = opts?.auth?.storage
-        if (realStorage && result.codeVerifier) {
-          const originalSignIn = client.auth.signInWithOAuth
-          client.auth.signInWithOAuth = vi.fn().mockImplementation(async (args: unknown) => {
-            const ref = new URL(config.SUPABASE_URL).hostname.split('.')[0]
-            realStorage.setItem(`sb-${ref}-auth-token-code-verifier`, result.codeVerifier!)
-            return originalSignIn(args)
-          })
-        }
-        return client
-      }) as unknown as typeof createClient)
-      return client
-    }
-
-    it('returns the Supabase OAuth URL and PKCE verifier for Google', async () => {
-      mockOAuthClient({
-        url: 'https://supabase.example/auth/v1/authorize?provider=google',
-        error: null,
-        codeVerifier: 'pkce-verifier-google',
-      })
-
+    it('returns a Supabase authorize URL with PKCE for Google', async () => {
       const result = await authService.getOAuthUrl('google')
 
-      expect(result.url).toBe('https://supabase.example/auth/v1/authorize?provider=google')
-      expect(result.codeVerifier).toBe('pkce-verifier-google')
+      expect(result.url).toContain(`${config.SUPABASE_URL}/auth/v1/authorize`)
+      expect(result.url).toContain('provider=google')
+      expect(result.url).toContain('code_challenge=')
+      expect(result.url).toContain('code_challenge_method=s256')
+      expect(result.url).toContain(encodeURIComponent(`${config.FRONTEND_URL}/auth/callback`))
+      expect(result.codeVerifier).toBeTruthy()
+      expect(result.codeVerifier.length).toBeGreaterThan(20)
     })
 
-    it('returns the Supabase OAuth URL for GitHub', async () => {
-      mockOAuthClient({
-        url: 'https://supabase.example/auth/v1/authorize?provider=github',
-        error: null,
-        codeVerifier: 'pkce-verifier-github',
-      })
-
+    it('returns a Supabase authorize URL with PKCE for GitHub', async () => {
       const result = await authService.getOAuthUrl('github')
 
       expect(result.url).toContain('provider=github')
-      expect(result.codeVerifier).toBe('pkce-verifier-github')
+      expect(result.url).toContain('code_challenge=')
+      expect(result.codeVerifier).toBeTruthy()
     })
 
-    it('throws when Supabase fails to create OAuth URL', async () => {
-      mockOAuthClient({
-        url: null,
-        error: { message: 'provider not enabled' },
-      })
-
-      await expect(authService.getOAuthUrl('google')).rejects.toMatchObject({
-        status: 400,
-        code: 'VALIDATION_ERROR',
-      })
+    it('returns a fresh verifier each time', async () => {
+      const a = await authService.getOAuthUrl('google')
+      const b = await authService.getOAuthUrl('google')
+      expect(a.codeVerifier).not.toBe(b.codeVerifier)
     })
   })
 
@@ -199,35 +146,21 @@ describe('authService', () => {
   })
 
   describe('completeWithCode', () => {
-    function mockExchange(result: {
-      user: Record<string, unknown> | null
-      error: { message: string } | null
-    }) {
-      const client = {
-        auth: {
-          exchangeCodeForSession: vi.fn().mockResolvedValue({
-            data: {
-              session: result.user ? { access_token: 'supabase-access' } : null,
-              user: result.user,
-            },
-            error: result.error,
-          }),
-        },
-      }
-      // Without verifier → uses getSupabaseAnon; with verifier → createClient
-      mockGetAnon.mockReturnValue(client as never)
-      mockCreateClient.mockReturnValue(client as never)
-      return client
+    function mockPkceTokenSuccess(user: Record<string, unknown>) {
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          access_token: 'supabase-access',
+          user,
+        }),
+      })
     }
 
     it('exchanges code, upserts user, and returns session tokens', async () => {
-      mockExchange({
-        user: {
-          id: 'sb-1',
-          email: 'asha@example.com',
-          user_metadata: { full_name: 'Asha', avatar_url: 'https://example.com/a.jpg' },
-        },
-        error: null,
+      mockPkceTokenSuccess({
+        id: 'sb-1',
+        email: 'asha@example.com',
+        user_metadata: { full_name: 'Asha', avatar_url: 'https://example.com/a.jpg' },
       })
 
       findUser.mockResolvedValue(null)
@@ -242,6 +175,13 @@ describe('authService', () => {
 
       const session = await authService.completeWithCode('pkce-code', 'verifier')
 
+      expect(fetchMock).toHaveBeenCalledWith(
+        `${config.SUPABASE_URL}/auth/v1/token?grant_type=pkce`,
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ auth_code: 'pkce-code', code_verifier: 'verifier' }),
+        })
+      )
       expect(createUser).toHaveBeenCalledWith({
         data: {
           email: 'asha@example.com',
@@ -264,13 +204,10 @@ describe('authService', () => {
     })
 
     it('updates existing user profile fields from provider metadata', async () => {
-      mockExchange({
-        user: {
-          id: 'sb-1',
-          email: 'asha@example.com',
-          user_metadata: { name: 'Asha Updated', avatar_url: 'https://example.com/new.jpg' },
-        },
-        error: null,
+      mockPkceTokenSuccess({
+        id: 'sb-1',
+        email: 'asha@example.com',
+        user_metadata: { name: 'Asha Updated', avatar_url: 'https://example.com/new.jpg' },
       })
 
       findUser.mockResolvedValue(dbUser as never)
@@ -294,15 +231,23 @@ describe('authService', () => {
     })
 
     it('throws unauthorized when code exchange fails', async () => {
-      mockExchange({
-        user: null,
-        error: { message: 'invalid code' },
+      fetchMock.mockResolvedValue({
+        ok: false,
+        json: async () => ({ error_description: 'invalid code' }),
       })
 
-      await expect(authService.completeWithCode('bad')).rejects.toMatchObject({
+      await expect(authService.completeWithCode('bad', 'verifier')).rejects.toMatchObject({
         status: 401,
         code: 'UNAUTHORIZED',
       })
+    })
+
+    it('throws unauthorized when PKCE verifier cookie is missing', async () => {
+      await expect(authService.completeWithCode('code')).rejects.toMatchObject({
+        status: 401,
+        code: 'UNAUTHORIZED',
+      })
+      expect(fetchMock).not.toHaveBeenCalled()
     })
   })
 
