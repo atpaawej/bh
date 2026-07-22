@@ -1,11 +1,13 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
+import cookieParser from 'cookie-parser'
 import { config } from './lib/config'
 import { errorHandler } from './lib/middleware/errorHandler'
 import { apiLimiter } from './lib/middleware/rateLimiter'
 import productRoutes from './lib/routes/productRoutes'
 import categoryRoutes from './lib/routes/categoryRoutes'
+import authRoutes from './lib/routes/authRoutes'
 
 const app = express()
 
@@ -18,8 +20,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }))
 
-// ── Body parsing ──
+// ── Body + cookie parsing ──
 app.use(express.json({ limit: '1mb' }))
+app.use(cookieParser())
 
 // ── Rate limit all API routes ──
 app.use('/api', apiLimiter)
@@ -30,6 +33,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 // ── Routes ──
+app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/categories', categoryRoutes)
 

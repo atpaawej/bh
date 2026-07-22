@@ -34,6 +34,28 @@ export interface UserResponse {
   createdAt: string
 }
 
+// ── Auth ──
+
+export interface AuthUserResponse {
+  id: string
+  email: string
+  name: string
+  avatarUrl: string | null
+}
+
+export interface AuthSessionResponse {
+  accessToken: string
+  user: AuthUserResponse
+}
+
+export interface OAuthUrlResponse {
+  url: string
+}
+
+export interface MagicLinkResponse {
+  message: string
+}
+
 // ── Product ──
 
 export interface CreateProductInput {
