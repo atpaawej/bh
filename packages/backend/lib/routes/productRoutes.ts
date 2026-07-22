@@ -86,6 +86,7 @@ router.post(
 router.delete(
   "/:slug/vote",
   authMiddleware,
+  voteLimiter,
   asyncHandler(async (req, res) => {
     await productService.unvote(req.user!.id, req.params.slug);
     const product = await productService.getBySlug(

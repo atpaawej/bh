@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { ApiClientError, voteForProduct, unvoteForProduct } from "../lib/api";
 import { useAuth } from "../lib/auth/AuthContext";
 
+function formatVotes(count: number): string {
+  if (count >= 1000) {
+    const k = count / 1000;
+    return `${k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)}k`;
+  }
+  return String(count);
+}
+
 interface VoteButtonProps {
   productId: string;
   productSlug: string;
@@ -144,7 +152,7 @@ export function VoteButton({
         <span className="text-[10px] leading-none" aria-hidden>
           ▲
         </span>
-        <span>{voteCount}</span>
+        <span>{formatVotes(voteCount)}</span>
         {error ? (
           <span className="absolute mt-10 w-max max-w-[140px] whitespace-nowrap rounded-sm bg-error px-2 py-1 text-[10px] font-sans text-white">
             {error}
@@ -169,7 +177,7 @@ export function VoteButton({
         } ${pending ? "cursor-wait opacity-60" : ""}`}
       >
         <span aria-hidden>▲</span>
-        {hasVoted ? "Upvoted" : "Upvote"} · {voteCount}
+        {hasVoted ? "Upvoted" : "Upvote"} · {formatVotes(voteCount)}
       </button>
       {error ? (
         <p className="mb-2 text-center text-xs text-error" role="alert">
