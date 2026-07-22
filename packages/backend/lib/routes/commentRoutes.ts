@@ -5,6 +5,7 @@ import { createCommentSchema } from "../validators/commentSchema";
 import { authMiddleware } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { asyncHandler } from "../middleware/asyncHandler";
+import { commentLimiter } from "../middleware/rateLimiter";
 import { commentService } from "../services/commentService";
 
 const router = Router({ mergeParams: true });
@@ -28,6 +29,7 @@ router.get(
 router.post(
   "/",
   authMiddleware,
+  commentLimiter,
   validate(createCommentSchema),
   asyncHandler(async (req, res) => {
     const comment = await commentService.create(
@@ -46,6 +48,7 @@ router.post(
 router.delete(
   "/:id",
   authMiddleware,
+  commentLimiter,
   asyncHandler(async (req, res) => {
     await commentService.remove(req.user!.id, req.params.slug, req.params.id);
     res.status(204).send();

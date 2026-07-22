@@ -254,10 +254,19 @@ export async function logoutRequest(): Promise<void> {
 
 // ── Comments ──
 
+/**
+ * Fetch all comments (with nested replies) for a product. Public endpoint.
+ * Returns top-level comments sorted oldest-first, each with its replies.
+ */
 export function fetchComments(slug: string): Promise<CommentResponse[]> {
   return request(`/products/${encodeURIComponent(slug)}/comments`);
 }
 
+/**
+ * Create a new comment or reply on a product. Auth required.
+ * @param slug - The product slug
+ * @param data - The comment body (plain text) and optional parentId for replies
+ */
 export function createComment(
   slug: string,
   data: { body: string; parentId?: string | null },
@@ -268,6 +277,11 @@ export function createComment(
   });
 }
 
+/**
+ * Delete a comment (and its replies) by ID. Auth + ownership required.
+ * @param slug - The product slug
+ * @param commentId - UUID of the comment to delete
+ */
 export function deleteComment(
   slug: string,
   commentId: string,

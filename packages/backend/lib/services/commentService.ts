@@ -38,20 +38,26 @@ const commentInclude = {
   user: true,
 } as const;
 
+/** Reusable product-id lookup to DRY slug → id resolution. */
+async function resolveProductIdOrThrow(slug: string): Promise<string> {
+  const product = await db.product.findUnique({
+    where: { slug },
+    select: { id: true },
+  });
+  if (!product) throw AppError.notFound("Product");
+  return product.id;
+}
+
 export const commentService = {
   /**
    * List all top-level comments for a product (parentId IS NULL),
    * each eagerly loaded with their direct replies, oldest first.
    */
   async listByProduct(slug: string): Promise<CommentResponse[]> {
-    const product = await db.product.findUnique({
-      where: { slug },
-      select: { id: true },
-    });
-    if (!product) throw AppError.notFound("Product");
+    const productId = await resolveProductIdOrThrow(slug);
 
     const topLevel = await db.comment.findMany({
-      where: { productId: product.id, parentId: null },
+      where: { productId, parentId: null },
       include: {
         ...commentInclude,
         replies: {
@@ -78,11 +84,7 @@ export const commentService = {
     slug: string,
     data: { body: string; parentId?: string | null },
   ): Promise<CommentResponse> {
-    const product = await db.product.findUnique({
-      where: { slug },
-      select: { id: true },
-    });
-    if (!product) throw AppError.notFound("Product");
+    const productId = await resolveProductIdOrThrow(slug);
 
     const body = sanitizeHtml(data.body, {
       allowedTags: [],
@@ -101,7 +103,7 @@ export const commentService = {
       if (parent.parentId !== null) {
         throw AppError.validation("Replies can only be one level deep");
       }
-      if (parent.productId !== product.id) {
+      if (parent.productId !== productId) {
         throw AppError.validation("Parent comment does not belong to this product");
       }
     }
@@ -110,7 +112,7 @@ export const commentService = {
       data: {
         body,
         userId,
-        productId: product.id,
+        productId,
         parentId: data.parentId ?? null,
       },
       include: commentInclude,
@@ -125,11 +127,7 @@ export const commentService = {
    * Also deletes any replies to prevent orphaned data.
    */
   async remove(userId: string, slug: string, commentId: string): Promise<void> {
-    const product = await db.product.findUnique({
-      where: { slug },
-      select: { id: true },
-    });
-    if (!product) throw AppError.notFound("Product");
+    const productId = await resolveProductIdOrThrow(slug);
 
     const comment = await db.comment.findUnique({
       where: { id: commentId },
@@ -137,7 +135,7 @@ export const commentService = {
     });
 
     if (!comment) throw AppError.notFound("Comment");
-    if (comment.productId !== product.id) {
+    if (comment.productId !== productId) {
       throw AppError.notFound("Comment");
     }
     if (comment.userId !== userId) {
