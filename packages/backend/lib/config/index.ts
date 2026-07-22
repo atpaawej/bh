@@ -1,7 +1,10 @@
+import path from 'path'
 import { z } from 'zod'
 import dotenv from 'dotenv'
 
-dotenv.config()
+// Load package .env first, then monorepo root (so `turbo dev` / `pnpm dev` from root works)
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') })
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),

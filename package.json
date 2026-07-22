@@ -3,20 +3,35 @@
   "version": "0.1.0",
   "private": true,
   "description": "Weekly product discovery platform for the Indian maker community",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "lint": "turbo lint",
+    "dev": "turbo run dev --filter=@bh/backend --filter=@bh/frontend",
+    "dev:backend": "turbo run dev --filter=@bh/backend",
+    "dev:frontend": "turbo run dev --filter=@bh/frontend",
+    "build": "turbo run build",
+    "lint": "turbo run lint && npm run lint:boundaries",
+    "lint:boundaries": "depcruise packages",
+    "test": "turbo run test",
     "format": "prettier --write \"packages/**/*.{ts,tsx,json}\"",
-    "clean": "turbo clean"
+    "clean": "turbo run clean"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
+    "dependency-cruiser": "^18.1.0",
     "prettier": "^3.0.0",
+    "turbo": "^2.0.0",
     "typescript": "^5.5.0"
   },
   "packageManager": "npm@10.8.0",
   "engines": {
     "node": ">=20"
+  },
+  "allowScripts": {
+    "@prisma/client@5.22.0": true,
+    "prisma@5.22.0": true,
+    "@prisma/engines@5.22.0": true,
+    "esbuild@0.28.1": true,
+    "esbuild@0.21.5": true
   }
 }

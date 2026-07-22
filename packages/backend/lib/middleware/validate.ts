@@ -7,7 +7,11 @@ export const validate = (schema: ZodSchema) =>
     const result = schema.safeParse(req.body)
 
     if (!result.success) {
-      const details = result.error.flatten().fieldErrors
+      const fieldErrors = result.error.flatten().fieldErrors
+      const details: Record<string, string[]> = {}
+      for (const [key, value] of Object.entries(fieldErrors)) {
+        if (value) details[key] = value
+      }
       throw AppError.validation('Invalid request body', details)
     }
 

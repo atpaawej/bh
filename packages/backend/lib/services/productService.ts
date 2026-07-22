@@ -1,7 +1,11 @@
 import { db } from '../db'
 import { slugify } from '../shared/utils'
+import { resolveWeekRange } from '../shared/week'
 import { AppError } from '../middleware/errorHandler'
-import type { ProductResponse, PaginatedResponse } from '@bh/shared/types'
+import { toProductResponse } from './productMapper'
+import type { ProductResponse, PaginatedResponse } from '@bh/shared'
+
+const PAGE_SIZE = 20
 
 interface ListParams {
   cursor?: string
@@ -9,48 +13,70 @@ interface ListParams {
   week?: string
 }
 
+const productInclude = {
+  maker: true,
+  category: true,
+  _count: { select: { votes: true, comments: true } },
+} as const
+
+function withCounts<T extends { _count: { votes: number; comments: number }; galleryUrls: string[] }>(
+  product: T
+) {
+  const { _count, ...rest } = product
+  return {
+    ...rest,
+    galleryUrls: rest.galleryUrls,
+    voteCount: _count.votes,
+    commentCount: _count.comments,
+  }
+}
+
 export const productService = {
+  /**
+   * List products for a weekly window, ranked by vote count (desc).
+   * Defaults to the current Friday→Thursday window when `week` is omitted.
+   */
   async list(params: ListParams): Promise<PaginatedResponse<ProductResponse>> {
-    const where: any = {
-      status: 'submitted',
-      launchedAt: { not: null },
+    let weekRange
+    try {
+      weekRange = resolveWeekRange(params.week)
+    } catch {
+      throw AppError.validation('Invalid week format. Expected YYYY-Wnn (e.g. 2026-W30)')
+    }
+
+    const where: {
+      status: { in: Array<'submitted' | 'featured'> }
+      launchedAt: { gte: Date; lte: Date }
+      category?: { slug: string }
+    } = {
+      status: { in: ['submitted', 'featured'] },
+      launchedAt: {
+        gte: weekRange.start,
+        lte: weekRange.end,
+      },
     }
 
     if (params.category) {
       where.category = { slug: params.category }
     }
 
-    if (params.week) {
-      // Parse week string like "2026-W30"
-      // TODO: implement weekly date range filtering
-    }
-
     const products = await db.product.findMany({
       where,
-      include: { maker: true, category: true, votes: true, comments: true },
-      orderBy: { launchedAt: 'desc' },
-      take: 21, // 20 + 1 for cursor detection
+      include: productInclude,
+      orderBy: [
+        { votes: { _count: 'desc' } },
+        { id: 'desc' },
+      ],
+      take: PAGE_SIZE + 1,
       ...(params.cursor ? { cursor: { id: params.cursor }, skip: 1 } : {}),
     })
 
-    const hasMore = products.length > 20
-    const data = products.slice(0, 20)
+    const hasMore = products.length > PAGE_SIZE
+    const page = products.slice(0, PAGE_SIZE)
 
     return {
-      data: data.map(p => ({
-        ...p,
-        voteCount: p.votes.length,
-        commentCount: p.comments.length,
-        hasVoted: false,
-        maker: p.maker,
-        galleryUrls: p.galleryUrls as string[],
-        demoUrl: p.demoUrl,
-        videoUrl: p.videoUrl,
-        launchedAt: p.launchedAt?.toISOString() || '',
-        scheduledFor: p.scheduledFor?.toISOString() || null,
-        createdAt: p.createdAt.toISOString(),
-      })),
-      nextCursor: hasMore ? data[data.length - 1].id : null,
+      data: page.map((p) => toProductResponse(withCounts(p))),
+      nextCursor: hasMore ? page[page.length - 1].id : null,
       hasMore,
     }
   },
@@ -58,38 +84,35 @@ export const productService = {
   async getBySlug(slug: string): Promise<ProductResponse> {
     const product = await db.product.findUnique({
       where: { slug },
-      include: { maker: true, category: true, votes: true, comments: true },
+      include: productInclude,
     })
 
     if (!product) throw AppError.notFound('Product')
 
-    return {
-      ...product,
-      voteCount: product.votes.length,
-      commentCount: product.comments.length,
-      hasVoted: false,
-      maker: product.maker,
-      galleryUrls: product.galleryUrls as string[],
-      demoUrl: product.demoUrl,
-      videoUrl: product.videoUrl,
-      launchedAt: product.launchedAt?.toISOString() || '',
-      scheduledFor: product.scheduledFor?.toISOString() || null,
-      createdAt: product.createdAt.toISOString(),
-    }
+    return toProductResponse(withCounts(product))
   },
 
-  async create(userId: string, data: any): Promise<ProductResponse> {
+  async create(userId: string, data: {
+    name: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    demoUrl?: string
+    categoryId: string
+    logoUrl: string
+    heroImageUrl: string
+    galleryUrls?: string[]
+    videoUrl?: string
+    scheduledFor?: string
+  }): Promise<ProductResponse> {
     const slug = slugify(data.name)
 
-    // Check slug uniqueness
     const existing = await db.product.findUnique({ where: { slug } })
     if (existing) throw AppError.conflict('A product with this name already exists')
 
-    // Verify category exists
     const category = await db.category.findUnique({ where: { id: data.categoryId } })
     if (!category) throw AppError.notFound('Category')
 
-    // If scheduled, validate it's a future date
     const isScheduled = !!data.scheduledFor
     const launchedAt = isScheduled ? null : new Date()
 
@@ -111,25 +134,13 @@ export const productService = {
         launchedAt,
         makerId: userId,
       },
-      include: { maker: true, category: true, votes: true, comments: true },
+      include: productInclude,
     })
 
-    return {
-      ...product,
-      voteCount: 0,
-      commentCount: 0,
-      hasVoted: false,
-      maker: product.maker,
-      galleryUrls: product.galleryUrls as string[],
-      demoUrl: product.demoUrl,
-      videoUrl: product.videoUrl,
-      launchedAt: product.launchedAt?.toISOString() || '',
-      scheduledFor: product.scheduledFor?.toISOString() || null,
-      createdAt: product.createdAt.toISOString(),
-    }
+    return toProductResponse(withCounts(product))
   },
 
-  async update(userId: string, slug: string, data: any) {
+  async update(userId: string, slug: string, data: Record<string, unknown>) {
     const product = await db.product.findUnique({ where: { slug } })
     if (!product) throw AppError.notFound('Product')
     if (product.makerId !== userId) throw AppError.forbidden('You can only edit your own products')
@@ -137,22 +148,10 @@ export const productService = {
     const updated = await db.product.update({
       where: { slug },
       data,
-      include: { maker: true, category: true, votes: true, comments: true },
+      include: productInclude,
     })
 
-    return {
-      ...updated,
-      voteCount: updated.votes.length,
-      commentCount: updated.comments.length,
-      hasVoted: false,
-      maker: updated.maker,
-      galleryUrls: updated.galleryUrls as string[],
-      demoUrl: updated.demoUrl,
-      videoUrl: updated.videoUrl,
-      launchedAt: updated.launchedAt?.toISOString() || '',
-      scheduledFor: updated.scheduledFor?.toISOString() || null,
-      createdAt: updated.createdAt.toISOString(),
-    }
+    return toProductResponse(withCounts(updated))
   },
 
   async remove(userId: string, slug: string) {
