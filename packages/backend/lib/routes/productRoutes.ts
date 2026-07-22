@@ -1,12 +1,17 @@
 // ── Product Routes ──
 
 import { Router } from "express";
-import { createProductSchema } from "../validators/productSchema";
+import { z } from "zod";
+import {
+  createProductSchema,
+  updateProductSchema,
+} from "../validators/productSchema";
 import { authMiddleware, optionalAuthMiddleware } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { voteLimiter } from "../middleware/rateLimiter";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { productService } from "../services/productService";
+import { generateSignedUploadUrl } from "../services/cloudinaryService";
 
 const router = Router();
 
@@ -22,6 +27,24 @@ router.get(
       userId: req.user?.id,
     });
     res.json(products);
+  }),
+);
+
+/**
+ * GET /api/products/upload-url
+ * Returns a signed Cloudinary upload URL for the specified folder type.
+ * Must be defined before /:slug so Express doesn't capture "upload-url" as a slug.
+ * Query param: folder — one of "logos", "heroes", "gallery"
+ */
+router.get(
+  "/upload-url",
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    const folder = z
+      .enum(["logos", "heroes", "gallery"])
+      .parse(req.query.folder);
+    const signed = generateSignedUploadUrl(folder);
+    res.json(signed);
   }),
 );
 
@@ -50,6 +73,7 @@ router.post(
 router.patch(
   "/:slug",
   authMiddleware,
+  validate(updateProductSchema),
   asyncHandler(async (req, res) => {
     const product = await productService.update(
       req.user!.id,
@@ -85,6 +109,22 @@ router.delete(
   voteLimiter,
   asyncHandler(async (req, res) => {
     const product = await productService.unvote(req.user!.id, req.params.slug);
+    res.json(product);
+  }),
+);
+
+/**
+ * GET /api/products/:slug/edit
+ * Returns the product including drafts for the owner (edit page).
+ */
+router.get(
+  "/:slug/edit",
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    const product = await productService.getOwnBySlug(
+      req.params.slug,
+      req.user!.id,
+    );
     res.json(product);
   }),
 );

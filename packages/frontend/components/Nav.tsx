@@ -19,6 +19,9 @@ export function Nav() {
           <Link href="/" className="text-sm font-medium text-ink">
             Discover
           </Link>
+          <Link href="/launch" className="text-sm font-medium text-ink">
+            Launch
+          </Link>
           <span className="text-sm text-muted">Leaderboard</span>
           <span className="text-sm text-muted">Categories</span>
           <LaunchNavLink />
