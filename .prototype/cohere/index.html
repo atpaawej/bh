@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BharatHunt — Discover products built in India</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Announcement -->
+  <div class="announcement">
+    <span>Week 29 launches are live — vote for your favorites</span>
+    <a href="leaderboard.html">See leaderboard</a>
+    <button class="announcement-close" aria-label="Close">×</button>
+  </div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo"><span>Bharat</span>Hunt</a>
+      <div class="nav-center">
+        <a href="index.html" class="nav-link active">Discover</a>
+        <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+        <a href="category.html" class="nav-link">Categories</a>
+        <a href="launch.html" class="nav-link">Launch</a>
+      </div>
+      <div class="nav-right">
+        <a href="login.html" class="nav-link">Sign in</a>
+        <a href="launch.html" class="btn-primary btn-sm">Get Started</a>
+        <button class="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <p class="hero-eyebrow">Built for Indian makers</p>
+      <h1>Discover what <span class="em">India</span> is shipping this week</h1>
+      <p class="hero-lead">BharatHunt is where makers launch products, early adopters find the next big thing, and the community decides what rises.</p>
+      <div class="hero-actions">
+        <a href="launch.html" class="btn-primary btn-lg">Launch your product</a>
+        <a href="leaderboard.html" class="btn-secondary">Explore leaderboard →</a>
+      </div>
+
+      <div class="hero-media">
+        <div class="agent-console">
+          <div class="console-top">
+            <span class="console-title">Today's #1</span>
+            <span class="console-chip">● Live</span>
+          </div>
+          <div class="console-product">
+            <div class="console-icon">🧠</div>
+            <div>
+              <div class="console-name">Krutrim AI</div>
+              <div class="console-desc">Full-stack AI · 22 Indian languages</div>
+            </div>
+            <div class="console-votes">▲ 1,428</div>
+          </div>
+          <div class="console-product">
+            <div class="console-icon">🌧️</div>
+            <div>
+              <div class="console-name">Rain Drop</div>
+              <div class="console-desc">Village-level weather for farmers</div>
+            </div>
+            <div class="console-votes">▲ 892</div>
+          </div>
+          <div class="console-meta">
+            <span class="console-badge">AI & ML</span>
+            <span class="console-badge">Climate Tech</span>
+            <span class="console-badge">Fintech</span>
+          </div>
+        </div>
+        <div class="hero-photo-card">
+          <img src="https://placehold.co/600x480/003c33/eeece7?text=Makers+in+India" alt="Makers building in India" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust -->
+  <section class="trust">
+    <div class="container">
+      <p class="trust-label">Trusted by makers from</p>
+      <div class="trust-logos">
+        <span>Zerodha</span>
+        <span>Razorpay</span>
+        <span>CRED</span>
+        <span>Groww</span>
+        <span>Meesho</span>
+        <span>BharatPe</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trending products -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="mono-label" style="margin-bottom:12px;">This week</p>
+          <h2>Products rising on BharatHunt</h2>
+        </div>
+        <p>Community-ranked. Resets every Friday. One upvote per product — make it count.</p>
+      </div>
+
+      <div class="product-grid">
+        <a href="product.html" class="product-card">
+          <div class="product-card-top">
+            <div class="product-icon">🧠</div>
+            <button class="vote-pill" type="button"><span class="arrow">▲</span>1.4k</button>
+          </div>
+          <h3>Krutrim AI</h3>
+          <p>India's first full-stack AI platform — LLM, vision, and speech for 22 Indian languages.</p>
+          <div class="product-card-footer">
+            <div class="product-meta"><span>💬 24</span><span>3 days ago</span></div>
+            <span class="tag-pill">AI & ML</span>
+          </div>
+        </a>
+
+        <a href="product.html" class="product-card">
+          <div class="product-card-top">
+            <div class="product-icon">🌧️</div>
+            <button class="vote-pill" type="button"><span class="arrow">▲</span>892</button>
+          </div>
+          <h3>Rain Drop</h3>
+          <p>Hyper-local weather intelligence for Indian farmers — 10-day forecasts at village resolution.</p>
+          <div class="product-card-footer">
+            <div class="product-meta"><span>💬 16</span><span>1 day ago</span></div>
+            <span class="tag-pill">Climate</span>
+          </div>
+        </a>
+
+        <a href="product.html" class="product-card">
+          <div class="product-card-top">
+            <div class="product-icon">💳</div>
+            <button class="vote-pill" type="button"><span class="arrow">▲</span>1.1k</button>
+          </div>
+          <h3>Bharat Pay</h3>
+          <p>Unified payments for India's small businesses — UPI, cards, and BNPL in one SDK.</p>
+          <div class="product-card-footer">
+            <div class="product-meta"><span>💬 42</span><span>5 days ago</span></div>
+            <span class="tag-pill">Fintech</span>
+          </div>
+        </a>
+
+        <a href="product.html" class="product-card">
+          <div class="product-card-top">
+            <div class="product-icon">🤖</div>
+            <button class="vote-pill" type="button"><span class="arrow">▲</span>756</button>
+          </div>
+          <h3>PhyROS</h3>
+          <p>Open-source robotics simulation for Indian manufacturing — digital twins for the factory floor.</p>
+          <div class="product-card-footer">
+            <div class="product-meta"><span>💬 31</span><span>4 days ago</span></div>
+            <span class="tag-pill">Dev Tools</span>
+          </div>
+        </a>
+
+        <a href="product.html" class="product-card">
+          <div class="product-card-top">
+            <div class="product-icon">📄</div>
+            <button class="vote-pill" type="button"><span class="arrow">▲</span>634</button>
+          </div>
+          <h3>Docs Up!</h3>
+          <p>Beautiful API docs that update themselves — built for Indian SaaS teams shipping fast.</p>
+          <div class="product-card-footer">
+            <div class="product-meta"><span>💬 18</span><span>2 days ago</span></div>
+            <span class="tag-pill">Dev Tools</span>
+          </div>
+        </a>
+
+        <a href="product.html" class="product-card">
+          <div class="product-card-top">
+            <div class="product-icon">🏎️</div>
+            <button class="vote-pill" type="button"><span class="arrow">▲</span>521</button>
+          </div>
+          <h3>Rush India</h3>
+          <p>Street-racing game set in Indian cities — Mumbai, Delhi, Bengaluru tracks with real traffic chaos.</p>
+          <div class="product-card-footer">
+            <div class="product-meta"><span>💬 55</span><span>6 days ago</span></div>
+            <span class="tag-pill">Gaming</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dark band — capabilities -->
+  <section class="dark-band">
+    <div class="container">
+      <p class="mono-label" style="color:rgba(255,255,255,0.45);margin-bottom:16px;">Why BharatHunt</p>
+      <h2>A fair launchpad for every maker</h2>
+      <p class="lead">No gatekeepers. No editorial review. Weekly cycles give every product a clean shot at the top.</p>
+
+      <div class="capability-grid">
+        <div class="capability-card">
+          <svg class="icon-line" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="18" cy="18" r="14"/><path d="M18 10v8l5 3"/>
+          </svg>
+          <h3>Weekly ranking</h3>
+          <p>Friday to Thursday cycles. Every product starts equal — the community decides what wins.</p>
+        </div>
+        <div class="capability-card">
+          <svg class="icon-line" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M8 26L18 8l10 18H8z"/><path d="M14 20h8"/>
+          </svg>
+          <h3>One vote, real signal</h3>
+          <p>One upvote per product per user. No bots, no pile-ons — just genuine community taste.</p>
+        </div>
+        <div class="capability-card">
+          <svg class="icon-line" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="6" y="10" width="24" height="16" rx="2"/><path d="M6 16h24"/><circle cx="12" cy="13" r="1" fill="currentColor"/>
+          </svg>
+          <h3>Beautiful product pages</h3>
+          <p>Logo, gallery, story, and nested discussion — everything a launch needs in one place.</p>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-item">
+          <div class="num">2,847</div>
+          <div class="label">Products launched</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">12.5k</div>
+          <div class="label">Makers</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">89k</div>
+          <div class="label">Upvotes cast</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ranked list preview -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="mono-label" style="margin-bottom:12px;">Leaderboard</p>
+          <h2>Top of the week</h2>
+        </div>
+        <a href="leaderboard.html" class="btn-secondary">Full leaderboard →</a>
+      </div>
+
+      <div class="rank-list">
+        <a href="product.html" class="rank-row">
+          <div class="rank-num top">1</div>
+          <div class="rank-info">
+            <div class="rank-icon">🧠</div>
+            <div>
+              <div class="rank-name">Krutrim AI</div>
+              <div class="rank-tagline">Full-stack AI for 22 Indian languages</div>
+            </div>
+          </div>
+          <div class="rank-tags">
+            <span class="tag-pill">AI & ML</span>
+            <span class="tag-pill">Bengaluru</span>
+          </div>
+          <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>1,428</button>
+        </a>
+        <a href="product.html" class="rank-row">
+          <div class="rank-num top">2</div>
+          <div class="rank-info">
+            <div class="rank-icon">💳</div>
+            <div>
+              <div class="rank-name">Bharat Pay</div>
+              <div class="rank-tagline">UPI + cards + BNPL for small business</div>
+            </div>
+          </div>
+          <div class="rank-tags">
+            <span class="tag-pill">Fintech</span>
+            <span class="tag-pill">Mumbai</span>
+          </div>
+          <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>1,102</button>
+        </a>
+        <a href="product.html" class="rank-row">
+          <div class="rank-num top">3</div>
+          <div class="rank-info">
+            <div class="rank-icon">🌧️</div>
+            <div>
+              <div class="rank-name">Rain Drop</div>
+              <div class="rank-tagline">Village-level weather for farmers</div>
+            </div>
+          </div>
+          <div class="rank-tags">
+            <span class="tag-pill">Climate</span>
+            <span class="tag-pill">Pune</span>
+          </div>
+          <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>892</button>
+        </a>
+        <a href="product.html" class="rank-row">
+          <div class="rank-num">4</div>
+          <div class="rank-info">
+            <div class="rank-icon">🤖</div>
+            <div>
+              <div class="rank-name">PhyROS</div>
+              <div class="rank-tagline">Robotics simulation for manufacturing</div>
+            </div>
+          </div>
+          <div class="rank-tags">
+            <span class="tag-pill">Dev Tools</span>
+            <span class="tag-pill">Hyderabad</span>
+          </div>
+          <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>756</button>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-band stone-band">
+    <div class="container">
+      <p class="mono-label" style="margin-bottom:16px;">Ready when you are</p>
+      <h2>Ship something. Get discovered.</h2>
+      <p>Join thousands of Indian makers launching on BharatHunt every week.</p>
+      <a href="launch.html" class="btn-primary btn-lg">Launch your product</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-newsletter">
+        <div>
+          <p class="coral-label">Launches move fast</p>
+          <h3>Get the weekly digest</h3>
+          <p>Top products, maker stories, and launch tips — every Friday.</p>
+        </div>
+        <form class="newsletter-form" onsubmit="return false;">
+          <input type="email" placeholder="you@email.com" />
+          <button type="submit">Subscribe →</button>
+        </form>
+      </div>
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand"><span>Bharat</span>Hunt</div>
+          <p class="footer-desc">India's home for makers — where creations find their people.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Discover</h4>
+          <a href="index.html">Home</a>
+          <a href="leaderboard.html">Leaderboard</a>
+          <a href="category.html">Categories</a>
+          <a href="#">Trending</a>
+        </div>
+        <div class="footer-col">
+          <h4>Launch</h4>
+          <a href="launch.html">Submit product</a>
+          <a href="#">Maker guide</a>
+          <a href="#">Best practices</a>
+          <a href="#">Community tips</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Brand kit</a>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 BharatHunt. Made with care in India.</span>
+        <div class="footer-bottom-links">
+          <a href="#">Browse all</a>
+          <a href="#">FAQ</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

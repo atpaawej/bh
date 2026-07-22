@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaderboard — BharatHunt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo"><span>Bharat</span>Hunt</a>
+      <div class="nav-center">
+        <a href="index.html" class="nav-link">Discover</a>
+        <a href="leaderboard.html" class="nav-link active">Leaderboard</a>
+        <a href="category.html" class="nav-link">Categories</a>
+        <a href="launch.html" class="nav-link">Launch</a>
+      </div>
+      <div class="nav-right">
+        <a href="login.html" class="nav-link">Sign in</a>
+        <a href="launch.html" class="btn-primary btn-sm">Get Started</a>
+        <button class="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <p class="mono-label" style="margin-bottom:12px;">Week 29 · Jul 18 – Jul 24</p>
+      <h1>Leaderboard</h1>
+      <p>Community-ranked products this week. Rankings reset every Friday at midnight IST.</p>
+    </div>
+
+    <div class="filter-row">
+      <button class="filter-chip active" type="button">This week</button>
+      <button class="filter-chip" type="button">Last week</button>
+      <button class="filter-chip" type="button">All time</button>
+      <button class="btn-pill-outline" type="button" style="margin-left:auto;">AI & ML</button>
+      <button class="btn-pill-outline" type="button">Fintech</button>
+      <button class="btn-pill-outline" type="button">Dev Tools</button>
+    </div>
+
+    <div class="rank-list" style="padding-bottom:80px;">
+      <a href="product.html" class="rank-row">
+        <div class="rank-num top">1</div>
+        <div class="rank-info">
+          <div class="rank-icon">🧠</div>
+          <div>
+            <div class="rank-name">Krutrim AI</div>
+            <div class="rank-tagline">Full-stack AI for 22 Indian languages</div>
+          </div>
+        </div>
+        <div class="rank-tags">
+          <span class="tag-pill">AI & ML</span>
+          <span class="tag-pill">Bengaluru</span>
+        </div>
+        <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>1,428</button>
+      </a>
+      <a href="product.html" class="rank-row">
+        <div class="rank-num top">2</div>
+        <div class="rank-info">
+          <div class="rank-icon">💳</div>
+          <div>
+            <div class="rank-name">Bharat Pay</div>
+            <div class="rank-tagline">UPI + cards + BNPL for small business</div>
+          </div>
+        </div>
+        <div class="rank-tags">
+          <span class="tag-pill">Fintech</span>
+          <span class="tag-pill">Mumbai</span>
+        </div>
+        <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>1,102</button>
+      </a>
+      <a href="product.html" class="rank-row">
+        <div class="rank-num top">3</div>
+        <div class="rank-info">
+          <div class="rank-icon">🌧️</div>
+          <div>
+            <div class="rank-name">Rain Drop</div>
+            <div class="rank-tagline">Village-level weather for farmers</div>
+          </div>
+        </div>
+        <div class="rank-tags">
+          <span class="tag-pill">Climate</span>
+          <span class="tag-pill">Pune</span>
+        </div>
+        <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>892</button>
+      </a>
+      <a href="product.html" class="rank-row">
+        <div class="rank-num">4</div>
+        <div class="rank-info">
+          <div class="rank-icon">🤖</div>
+          <div>
+            <div class="rank-name">PhyROS</div>
+            <div class="rank-tagline">Robotics simulation for manufacturing</div>
+          </div>
+        </div>
+        <div class="rank-tags">
+          <span class="tag-pill">Dev Tools</span>
+          <span class="tag-pill">Hyderabad</span>
+        </div>
+        <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>756</button>
+      </a>
+      <a href="product.html" class="rank-row">
+        <div class="rank-num">5</div>
+        <div class="rank-info">
+          <div class="rank-icon">📄</div>
+          <div>
+            <div class="rank-name">Docs Up!</div>
+            <div class="rank-tagline">Self-updating API docs for SaaS teams</div>
+          </div>
+        </div>
+        <div class="rank-tags">
+          <span class="tag-pill">Dev Tools</span>
+          <span class="tag-pill">Bengaluru</span>
+        </div>
+        <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>634</button>
+      </a>
+      <a href="product.html" class="rank-row">
+        <div class="rank-num">6</div>
+        <div class="rank-info">
+          <div class="rank-icon">🏎️</div>
+          <div>
+            <div class="rank-name">Rush India</div>
+            <div class="rank-tagline">Street racing across Indian cities</div>
+          </div>
+        </div>
+        <div class="rank-tags">
+          <span class="tag-pill">Gaming</span>
+          <span class="tag-pill">Delhi</span>
+        </div>
+        <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>521</button>
+      </a>
+      <a href="product.html" class="rank-row">
+        <div class="rank-num">7</div>
+        <div class="rank-info">
+          <div class="rank-icon">🏥</div>
+          <div>
+            <div class="rank-name">Aarogya</div>
+            <div class="rank-tagline">Telemedicine for tier-2 & tier-3 cities</div>
+          </div>
+        </div>
+        <div class="rank-tags">
+          <span class="tag-pill">HealthTech</span>
+          <span class="tag-pill">Jaipur</span>
+        </div>
+        <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>487</button>
+      </a>
+      <a href="product.html" class="rank-row">
+        <div class="rank-num">8</div>
+        <div class="rank-info">
+          <div class="rank-icon">📚</div>
+          <div>
+            <div class="rank-name">Shiksha Loop</div>
+            <div class="rank-tagline">Peer tutoring matching for college students</div>
+          </div>
+        </div>
+        <div class="rank-tags">
+          <span class="tag-pill">Education</span>
+          <span class="tag-pill">Chennai</span>
+        </div>
+        <button class="vote-pill rank-vote" type="button"><span class="arrow">▲</span>412</button>
+      </a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand"><span>Bharat</span>Hunt</div>
+          <p class="footer-desc">India's home for makers — where creations find their people.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Discover</h4>
+          <a href="index.html">Home</a>
+          <a href="leaderboard.html">Leaderboard</a>
+          <a href="category.html">Categories</a>
+        </div>
+        <div class="footer-col">
+          <h4>Launch</h4>
+          <a href="launch.html">Submit product</a>
+          <a href="#">Maker guide</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 BharatHunt. Made with care in India.</span>
+        <div class="footer-bottom-links"><a href="#">FAQ</a><a href="#">Terms</a></div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
