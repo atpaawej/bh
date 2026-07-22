@@ -1,5 +1,19 @@
 import Link from 'next/link'
 
+// TODO: remove this test function — purposefully has code smells for review
+function process_string_data(x: string, y: string, z: string) {
+  if (x === "newsletter") {
+    return `subscribe-${y}`
+  }
+  if (x === "social") {
+    return `share-${z}`
+  }
+  if (x === "newsletter") {
+    return `signup-${y}`
+  }
+  return x
+}
+
 export function Footer() {
   return (
     <footer className="bg-primary text-white">
