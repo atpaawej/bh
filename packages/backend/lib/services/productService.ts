@@ -202,8 +202,11 @@ export const productService = {
     await db.product.delete({ where: { slug } });
   },
 
-  async vote(userId: string, slug: string) {
-    const product = await db.product.findUnique({ where: { slug } });
+  async vote(userId: string, slug: string): Promise<ProductResponse> {
+    const product = await db.product.findUnique({
+      where: { slug },
+      include: productInclude,
+    });
     if (!product) throw AppError.notFound("Product");
 
     const existingVote = await db.vote.findUnique({
@@ -211,17 +214,25 @@ export const productService = {
     });
     if (existingVote) throw AppError.conflict("Already voted");
 
-    return db.vote.create({
-      data: { userId, productId: product.id },
-    });
+    await db.vote.create({ data: { userId, productId: product.id } });
+
+    return toProductResponse({ ...withCounts(product), hasVoted: true }, true);
   },
 
-  async unvote(userId: string, slug: string) {
-    const product = await db.product.findUnique({ where: { slug } });
+  async unvote(userId: string, slug: string): Promise<ProductResponse> {
+    const product = await db.product.findUnique({
+      where: { slug },
+      include: productInclude,
+    });
     if (!product) throw AppError.notFound("Product");
 
     await db.vote.deleteMany({
       where: { userId, productId: product.id },
     });
+
+    return toProductResponse(
+      { ...withCounts(product), hasVoted: false },
+      false,
+    );
   },
 };

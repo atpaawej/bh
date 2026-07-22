@@ -64,6 +64,11 @@ export function VoteButton({
     }
   }, [initialHasVoted, initialVoteCount]);
 
+  // Also clear local error when external state changes (prop sync)
+  useEffect(() => {
+    setError(null);
+  }, [initialHasVoted, initialVoteCount]);
+
   // Auto-clear inline error after 4 s
   useEffect(() => {
     if (!error) return;
@@ -143,7 +148,7 @@ export function VoteButton({
         onClick={handleVote}
         disabled={pending || authLoading}
         aria-label={hasVoted ? "Remove upvote" : "Upvote"}
-        className={`inline-flex min-w-[52px] flex-col items-center gap-0.5 rounded-sm border px-3 py-2 font-mono text-xs transition-colors ${
+        className={`relative inline-flex min-w-[52px] flex-col items-center gap-0.5 rounded-sm border px-3 py-2 font-mono text-xs transition-colors ${
           hasVoted
             ? "border-deep-green bg-deep-green/10 text-deep-green"
             : "border-hairline bg-canvas text-ink hover:border-deep-green hover:text-deep-green"

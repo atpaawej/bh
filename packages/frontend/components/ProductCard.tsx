@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { ProductResponse } from "@bh/shared";
 import { VoteButton } from "./VoteButton";
@@ -11,6 +11,11 @@ export function ProductCard({
   product: ProductResponse;
 }) {
   const [product, setProduct] = useState(initialProduct);
+
+  // Sync local state when prop changes (e.g. after feed re-fetch with updated hasVoted)
+  useEffect(() => {
+    setProduct(initialProduct);
+  }, [initialProduct]);
   const logoSrc = product.logoUrl || product.heroImageUrl;
 
   return (

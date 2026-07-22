@@ -74,11 +74,7 @@ router.post(
   authMiddleware,
   voteLimiter,
   asyncHandler(async (req, res) => {
-    await productService.vote(req.user!.id, req.params.slug);
-    const product = await productService.getBySlug(
-      req.params.slug,
-      req.user!.id,
-    );
+    const product = await productService.vote(req.user!.id, req.params.slug);
     res.json(product);
   }),
 );
@@ -88,11 +84,7 @@ router.delete(
   authMiddleware,
   voteLimiter,
   asyncHandler(async (req, res) => {
-    await productService.unvote(req.user!.id, req.params.slug);
-    const product = await productService.getBySlug(
-      req.params.slug,
-      req.user!.id,
-    );
+    const product = await productService.unvote(req.user!.id, req.params.slug);
     res.json(product);
   }),
 );
