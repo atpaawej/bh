@@ -6,12 +6,14 @@
     "strict": true,
     "esModuleInterop": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "resolveJsonModule": true,
     "declaration": true,
     "sourceMap": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@bh/shared": ["../shared/src/index.ts"],
+      "@bh/shared/*": ["../shared/src/*"]
+    }
   },
-  "include": ["src"],
-  "references": [{ "path": "../shared" }]
+  "include": ["src"]
 }

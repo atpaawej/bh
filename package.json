@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "description": "Weekly product discovery platform for the Indian maker community",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
+    "test": "turbo test",
     "format": "prettier --write \"packages/**/*.{ts,tsx,json}\"",
     "clean": "turbo clean"
   },
@@ -18,5 +22,12 @@
   "packageManager": "npm@10.8.0",
   "engines": {
     "node": ">=20"
+  },
+  "allowScripts": {
+    "@prisma/client@5.22.0": true,
+    "prisma@5.22.0": true,
+    "@prisma/engines@5.22.0": true,
+    "esbuild@0.28.1": true,
+    "esbuild@0.21.5": true
   }
 }
