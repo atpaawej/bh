@@ -1,39 +1,38 @@
 'use client'
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { CATEGORIES, type CategorySlug } from '@bh/shared'
-import type { CreateProductInput } from '@bh/shared'
-import { ProtectedRoute } from '../../components/auth/ProtectedRoute'
-import { useAuth } from '../../lib/auth/AuthContext'
-import { createProduct, fetchCategories, fetchUploadUrl } from '../../lib/api'
+import type { ProductResponse } from '@bh/shared'
+import { ProtectedRoute } from '../../../../components/auth/ProtectedRoute'
+import { useAuth } from '../../../../lib/auth/AuthContext'
+import {
+  ApiClientError,
+  deleteProduct,
+  fetchCategories,
+  fetchProductForEdit,
+  fetchUploadUrl,
+  updateProduct,
+} from '../../../../lib/api'
 import type { CategoryResponse } from '@bh/shared'
 
-function toCategoryMap(cats: CategoryResponse[]) {
-  const map = new Map<string, string>()
-  for (const c of cats) {
-    map.set(c.slug, c.id)
-    map.set(c.id, c.id)
-  }
-  return map
+/** Picks the category slug matching the product's category id by reverse lookup. */
+function resolveSlug(product: ProductResponse, cats: CategoryResponse[]): CategorySlug {
+  const match = cats.find((c) => c.id === product.category.id)
+  return (match?.slug ?? cats[0]?.slug ?? 'developer-tools') as CategorySlug
 }
 
-function getNextFriday(): string {
-  const now = new Date()
-  const friday = new Date(now)
-  friday.setUTCDate(friday.getUTCDate() + ((5 + 7 - friday.getUTCDay()) % 7 || 7))
-  friday.setUTCHours(0, 0, 0, 0)
-  return friday.toISOString()
-}
-
-type SubmitMode = 'draft' | 'publish' | 'schedule'
-
-export default function LaunchPage() {
+export default function EditProductPage() {
+  const params = useParams()
+  const slug = params.slug as string
   const router = useRouter()
-  const { isAuthenticated } = useAuth()
+  const { user } = useAuth()
 
   const [categories, setCategories] = useState<CategoryResponse[]>([])
-  const [categoryMap, setCategoryMap] = useState<Map<string, string>>(new Map())
+  const [product, setProduct] = useState<ProductResponse | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [isOwner, setIsOwner] = useState(false)
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]> | null>(null)
@@ -50,24 +49,52 @@ export default function LaunchPage() {
   const [galleryUrls, setGalleryUrls] = useState<string[]>([])
   const [videoUrl, setVideoUrl] = useState('')
 
+  // ── Delete confirmation ──
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+
   // ── Image uploads ──
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [uploadingHero, setUploadingHero] = useState(false)
   const [uploadingGallery, setUploadingGallery] = useState(false)
 
   useEffect(() => {
-    fetchCategories()
-      .then((cats) => {
+    async function load() {
+      try {
+        const [cats, prod] = await Promise.all([
+          fetchCategories(),
+          fetchProductForEdit(slug),
+        ])
         setCategories(cats)
-        setCategoryMap(toCategoryMap(cats))
-        if (cats.length > 0) {
-          setCategorySlug(cats[0].slug as CategorySlug)
+        setProduct(prod)
+
+        // Pre-fill form
+        setName(prod.name)
+        setTagline(prod.tagline)
+        setDescription(prod.description)
+        setWebsiteUrl(prod.websiteUrl)
+        setDemoUrl(prod.demoUrl ?? '')
+        setCategorySlug(resolveSlug(prod, cats))
+        setLogoUrl(prod.logoUrl)
+        setHeroImageUrl(prod.heroImageUrl)
+        setGalleryUrls(prod.galleryUrls)
+        setVideoUrl(prod.videoUrl ?? '')
+
+        if (user) {
+          setIsOwner(prod.maker.id === user.id)
         }
-      })
-      .catch(() => {
-        setError('Failed to load categories')
-      })
-  }, [])
+      } catch (err) {
+        if (err instanceof ApiClientError && err.status === 404) {
+          router.replace('/')
+        } else {
+          setError(err instanceof Error ? err.message : 'Failed to load product')
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+    void load()
+  }, [slug, router, user])
 
   const getSignedUrl = useCallback(async (folder: 'logos' | 'heroes' | 'gallery') => {
     return fetchUploadUrl(folder)
@@ -145,45 +172,30 @@ export default function LaunchPage() {
     setGalleryUrls((prev) => prev.filter((_, i) => i !== index))
   }, [])
 
-  async function handleSubmit(mode: SubmitMode) {
+  async function handleSave(e: FormEvent) {
+    e.preventDefault()
     setError(null)
     setFieldErrors(null)
-
     if (isSubmitting) return
     setIsSubmitting(true)
 
     try {
-      const categoryId = categoryMap.get(categorySlug)
-      if (!categoryId) {
-        setError('Invalid category selected')
-        return
-      }
-
-      const input: CreateProductInput = {
+      await updateProduct(slug, {
         name: name.trim(),
         tagline: tagline.trim(),
         description: description.trim(),
         websiteUrl: websiteUrl.trim(),
-        categoryId,
+        demoUrl: demoUrl.trim() || undefined,
         logoUrl,
         heroImageUrl,
-      }
+        galleryUrls,
+        videoUrl: videoUrl.trim() || undefined,
+      })
 
-      if (demoUrl.trim()) input.demoUrl = demoUrl.trim()
-      if (galleryUrls.length > 0) input.galleryUrls = galleryUrls
-      if (videoUrl.trim()) input.videoUrl = videoUrl.trim()
-
-      if (mode === 'schedule') {
-        input.scheduledFor = getNextFriday()
-      }
-      // mode === 'draft': no launchedAt, stays draft
-      // mode === 'publish': no scheduledFor, launches immediately
-
-      const product = await createProduct(input)
-      router.push(`/products/${product.slug}`)
+      router.push(`/products/${slug}`)
     } catch (err: unknown) {
       const apiErr = err as { message?: string; details?: Record<string, string[]> }
-      setError(apiErr.message ?? 'Failed to create product')
+      setError(apiErr.message ?? 'Failed to update product')
       if (apiErr.details) {
         setFieldErrors(apiErr.details)
       }
@@ -192,22 +204,57 @@ export default function LaunchPage() {
     }
   }
 
+  async function handleDelete() {
+    if (isDeleting) return
+    setIsDeleting(true)
+    try {
+      await deleteProduct(slug)
+      router.replace('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete product')
+      setShowDeleteConfirm(false)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <div className="mx-auto max-w-[680px] px-6 py-12">
+          <div className="flex min-h-[40vh] items-center justify-center">
+            <p className="text-sm text-muted">Loading product…</p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    )
+  }
+
+  if (!product || !isOwner) {
+    return (
+      <ProtectedRoute>
+        <div className="mx-auto max-w-[680px] px-6 py-12 text-center">
+          <h1 className="mb-4 font-display text-3xl text-ink">Access denied</h1>
+          <p className="text-body-muted">You can only edit your own products.</p>
+        </div>
+      </ProtectedRoute>
+    )
+  }
+
   const inputClasses =
     'w-full rounded-border bg-canvas px-4 py-2.5 text-sm text-ink outline-none ring-1 ring-hairline transition focus:ring-2 focus:ring-primary/30 placeholder:text-muted'
-
   const labelClasses = 'text-sm font-medium text-ink'
-
   const errorClasses = 'mt-1 text-xs text-error'
 
   return (
     <ProtectedRoute>
       <div className="mx-auto max-w-[680px] px-6 py-12">
-        <p className="mono-label mb-2 text-center text-xs text-muted">LAUNCH</p>
-        <h1 className="mb-2 text-center font-display text-4xl tracking-tight text-ink md:text-5xl">
-          Ship your product
+        <p className="mono-label mb-2 text-center text-xs text-muted">EDIT PRODUCT</p>
+        <h1 className="mb-2 text-center font-display text-4xl tracking-tight text-ink md:text-4xl">
+          Edit {product.name}
         </h1>
         <p className="mx-auto mb-10 max-w-md text-center text-body-muted">
-          Share what you&apos;ve built with the Indian maker community.
+          Update your product listing.
         </p>
 
         {error ? (
@@ -216,24 +263,17 @@ export default function LaunchPage() {
           </div>
         ) : null}
 
-        <form
-          onSubmit={(e: FormEvent) => {
-            e.preventDefault()
-            handleSubmit('publish')
-          }}
-          className="space-y-6"
-        >
+        <form onSubmit={handleSave} className="space-y-6">
           {/* ── Name ── */}
           <div>
             <label htmlFor="name" className={labelClasses}>
-              Product name <span className="text-coral">*</span>
+              Product name
             </label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Krutrim AI"
               className={inputClasses}
               maxLength={100}
               required
@@ -241,20 +281,18 @@ export default function LaunchPage() {
             {fieldErrors?.name?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
-            <p className="mt-1 text-right text-xs text-muted">{name.length}/100</p>
           </div>
 
           {/* ── Tagline ── */}
           <div>
             <label htmlFor="tagline" className={labelClasses}>
-              Tagline <span className="text-coral">*</span>
+              Tagline
             </label>
             <input
               id="tagline"
               type="text"
               value={tagline}
               onChange={(e) => setTagline(e.target.value)}
-              placeholder="A short, punchy description of your product"
               className={inputClasses}
               maxLength={150}
               required
@@ -262,19 +300,17 @@ export default function LaunchPage() {
             {fieldErrors?.tagline?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
-            <p className="mt-1 text-right text-xs text-muted">{tagline.length}/150</p>
           </div>
 
           {/* ── Description ── */}
           <div>
             <label htmlFor="description" className={labelClasses}>
-              Description <span className="text-coral">*</span>
+              Description
             </label>
             <textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tell us about your product — what problem it solves, who it's for, and what makes it special..."
               className={`${inputClasses} min-h-[160px] resize-y`}
               maxLength={5000}
               required
@@ -282,20 +318,18 @@ export default function LaunchPage() {
             {fieldErrors?.description?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
-            <p className="mt-1 text-right text-xs text-muted">{description.length}/5000</p>
           </div>
 
           {/* ── Website URL ── */}
           <div>
             <label htmlFor="websiteUrl" className={labelClasses}>
-              Website URL <span className="text-coral">*</span>
+              Website URL
             </label>
             <input
               id="websiteUrl"
               type="url"
               value={websiteUrl}
               onChange={(e) => setWebsiteUrl(e.target.value)}
-              placeholder="https://example.com"
               className={inputClasses}
               required
             />
@@ -307,14 +341,13 @@ export default function LaunchPage() {
           {/* ── Demo URL ── */}
           <div>
             <label htmlFor="demoUrl" className={labelClasses}>
-              Demo URL <span className="text-muted">(optional)</span>
+              Demo URL
             </label>
             <input
               id="demoUrl"
               type="url"
               value={demoUrl}
               onChange={(e) => setDemoUrl(e.target.value)}
-              placeholder="https://demo.example.com"
               className={inputClasses}
             />
             {fieldErrors?.demoUrl?.map((msg) => (
@@ -325,7 +358,7 @@ export default function LaunchPage() {
           {/* ── Category ── */}
           <div>
             <label htmlFor="category" className={labelClasses}>
-              Category <span className="text-coral">*</span>
+              Category
             </label>
             <select
               id="category"
@@ -339,37 +372,20 @@ export default function LaunchPage() {
                 </option>
               ))}
             </select>
-            {fieldErrors?.categoryId?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
-            ))}
           </div>
 
           {/* ── Logo Upload ── */}
           <div>
-            <label className={labelClasses}>
-              Logo <span className="text-coral">*</span>
-            </label>
-            {logoUrl ? (
-              <div className="mt-2 flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={logoUrl}
-                  alt="Logo preview"
-                  className="h-14 w-14 rounded-sm border border-card-border object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => setLogoUrl('')}
-                  className="text-xs text-muted underline-offset-2 hover:text-error hover:underline"
-                >
-                  Remove
-                </button>
-              </div>
-            ) : (
-              <label className="mt-2 flex cursor-pointer items-center justify-center rounded-border border-2 border-dashed border-hairline px-4 py-6 transition hover:border-primary/30">
-                <span className="text-sm text-muted">
-                  {uploadingLogo ? 'Uploading…' : 'Click to upload logo'}
-                </span>
+            <label className={labelClasses}>Logo</label>
+            <div className="mt-2 flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={logoUrl || '/placeholder-logo.svg'}
+                alt="Logo"
+                className="h-14 w-14 rounded-sm border border-card-border object-cover"
+              />
+              <label className="cursor-pointer text-xs text-muted underline-offset-2 hover:text-ink hover:underline">
+                {uploadingLogo ? 'Uploading…' : 'Change'}
                 <input
                   type="file"
                   accept="image/*"
@@ -378,7 +394,7 @@ export default function LaunchPage() {
                   disabled={uploadingLogo}
                 />
               </label>
-            )}
+            </div>
             {fieldErrors?.logoUrl?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
@@ -386,32 +402,14 @@ export default function LaunchPage() {
 
           {/* ── Hero Image Upload ── */}
           <div>
-            <label className={labelClasses}>
-              Hero image <span className="text-coral">*</span>
-            </label>
-            {heroImageUrl ? (
-              <div className="mt-2">
-                <div className="relative aspect-video overflow-hidden rounded-md bg-soft-stone">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={heroImageUrl}
-                    alt="Hero preview"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setHeroImageUrl('')}
-                  className="mt-2 text-xs text-muted underline-offset-2 hover:text-error hover:underline"
-                >
-                  Remove
-                </button>
+            <label className={labelClasses}>Hero image</label>
+            <div className="mt-2">
+              <div className="relative aspect-video overflow-hidden rounded-md bg-soft-stone">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={heroImageUrl} alt="Hero" className="h-full w-full object-cover" />
               </div>
-            ) : (
-              <label className="mt-2 flex cursor-pointer items-center justify-center rounded-border border-2 border-dashed border-hairline px-4 py-6 transition hover:border-primary/30">
-                <span className="text-sm text-muted">
-                  {uploadingHero ? 'Uploading…' : 'Click to upload hero image (16:9 recommended)'}
-                </span>
+              <label className="mt-2 inline-block cursor-pointer text-xs text-muted underline-offset-2 hover:text-ink hover:underline">
+                {uploadingHero ? 'Uploading…' : 'Change image'}
                 <input
                   type="file"
                   accept="image/*"
@@ -420,7 +418,7 @@ export default function LaunchPage() {
                   disabled={uploadingHero}
                 />
               </label>
-            )}
+            </div>
             {fieldErrors?.heroImageUrl?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
@@ -429,52 +427,36 @@ export default function LaunchPage() {
           {/* ── Gallery Uploads ── */}
           <div>
             <label className={labelClasses}>
-              Gallery images <span className="text-muted">(optional, max 5)</span>
+              Gallery images <span className="text-muted">(max 5)</span>
             </label>
-            {galleryUrls.length > 0 ? (
-              <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {galleryUrls.map((url, i) => (
-                  <div key={`${url}-${i}`} className="group relative aspect-video overflow-hidden rounded-md bg-soft-stone">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt={`Gallery ${i + 1}`} className="h-full w-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeGalleryImage(i)}
-                      className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary/70 text-xs text-white opacity-0 transition hover:bg-error group-hover:opacity-100"
-                      aria-label={`Remove gallery image ${i + 1}`}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-                {galleryUrls.length < 5 ? (
-                  <label className="flex cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-hairline bg-transparent text-sm text-muted transition hover:border-primary/30">
-                    {uploadingGallery ? 'Uploading…' : '+ Add'}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="sr-only"
-                      onChange={handleGalleryUpload}
-                      disabled={uploadingGallery}
-                    />
-                  </label>
-                ) : null}
-              </div>
-            ) : (
-              <label className="mt-2 flex cursor-pointer items-center justify-center rounded-border border-2 border-dashed border-hairline px-4 py-6 transition hover:border-primary/30">
-                <span className="text-sm text-muted">
-                  {uploadingGallery ? 'Uploading…' : 'Click to upload gallery images'}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  onChange={handleGalleryUpload}
-                  disabled={uploadingGallery}
-                  multiple
-                />
-              </label>
-            )}
+            <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {galleryUrls.map((url, i) => (
+                <div key={`${url}-${i}`} className="group relative aspect-video overflow-hidden rounded-md bg-soft-stone">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Gallery ${i + 1}`} className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeGalleryImage(i)}
+                    className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary/70 text-xs text-white opacity-0 transition hover:bg-error group-hover:opacity-100"
+                    aria-label="Remove image"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              {galleryUrls.length < 5 ? (
+                <label className="flex cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-hairline bg-transparent text-sm text-muted transition hover:border-primary/30">
+                  {uploadingGallery ? 'Uploading…' : '+ Add'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={handleGalleryUpload}
+                    disabled={uploadingGallery}
+                  />
+                </label>
+              ) : null}
+            </div>
             {fieldErrors?.galleryUrls?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
@@ -483,14 +465,13 @@ export default function LaunchPage() {
           {/* ── Video URL ── */}
           <div>
             <label htmlFor="videoUrl" className={labelClasses}>
-              Video URL <span className="text-muted">(optional)</span>
+              Video URL
             </label>
             <input
               id="videoUrl"
               type="url"
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
-              placeholder="https://www.youtube.com/watch?v=..."
               className={inputClasses}
             />
             {fieldErrors?.videoUrl?.map((msg) => (
@@ -498,35 +479,54 @@ export default function LaunchPage() {
             ))}
           </div>
 
-          {/* ── Submit Actions ── */}
-          <div className="flex flex-col gap-3 border-t border-hairline pt-6 sm:flex-row">
+          {/* ── Submit Button ── */}
+          <div className="flex items-center justify-between gap-4 border-t border-hairline pt-6">
             <button
               type="button"
-              onClick={() => handleSubmit('draft')}
-              disabled={isSubmitting}
-              className="inline-flex items-center justify-center rounded-pill border border-hairline px-6 py-3 text-sm font-medium text-ink transition hover:bg-soft-stone disabled:opacity-50"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="inline-flex items-center justify-center rounded-pill border border-error/30 px-5 py-2.5 text-sm font-medium text-error transition hover:bg-error/5"
             >
-              {isSubmitting ? 'Saving…' : 'Save as draft'}
+              Delete product
             </button>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex flex-1 items-center justify-center rounded-pill bg-primary px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-pill bg-primary px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
             >
-              {isSubmitting ? 'Publishing…' : 'Publish now'}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleSubmit('schedule')}
-              disabled={isSubmitting}
-              className="inline-flex items-center justify-center rounded-pill border border-hairline px-6 py-3 text-sm font-medium text-ink transition hover:bg-soft-stone disabled:opacity-50"
-            >
-              {isSubmitting ? 'Scheduling…' : 'Schedule for next Friday'}
+              {isSubmitting ? 'Saving…' : 'Save changes'}
             </button>
           </div>
         </form>
+
+        {/* ── Delete Confirmation Dialog ── */}
+        {showDeleteConfirm ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm">
+            <div className="mx-4 w-full max-w-md rounded-md bg-canvas p-8 shadow-lg">
+              <h2 className="mb-2 font-display text-xl text-ink">Delete product</h2>
+              <p className="mb-6 text-sm text-body-muted">
+                Are you sure you want to delete <strong>{product.name}</strong>? This action cannot be undone.
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="inline-flex items-center justify-center rounded-pill border border-hairline px-5 py-2.5 text-sm font-medium text-ink transition hover:bg-soft-stone"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="inline-flex items-center justify-center rounded-pill bg-error px-5 py-2.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+                >
+                  {isDeleting ? 'Deleting…' : 'Yes, delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </ProtectedRoute>
   )

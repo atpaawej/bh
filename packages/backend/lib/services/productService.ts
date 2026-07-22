@@ -19,9 +19,46 @@ const productInclude = {
   _count: { select: { votes: true, comments: true } },
 } as const
 
-function withCounts<T extends { _count: { votes: number; comments: number }; galleryUrls: string[] }>(
-  product: T
-) {
+type ProductWithCounts = {
+  id: string
+  name: string
+  slug: string
+  tagline: string
+  description: string
+  websiteUrl: string
+  demoUrl: string | null
+  logoUrl: string
+  heroImageUrl: string
+  galleryUrls: string[]
+  videoUrl: string | null
+  launchedAt: Date | null
+  scheduledFor: Date | null
+  createdAt: Date
+  updatedAt: Date
+  makerId: string
+  categoryId: string
+  status: string
+  maker: {
+    id: string
+    name: string
+    email: string
+    avatarUrl: string | null
+    bio: string | null
+    twitterHandle: string | null
+    website: string | null
+    createdAt: Date
+    updatedAt: Date
+  }
+  category: {
+    id: string
+    name: string
+    slug: string
+    description: string
+  }
+  _count: { votes: number; comments: number }
+}
+
+function withCounts(product: ProductWithCounts) {
   const { _count, ...rest } = product
   return {
     ...rest,
@@ -30,6 +67,21 @@ function withCounts<T extends { _count: { votes: number; comments: number }; gal
     commentCount: _count.comments,
   }
 }
+
+/** Fields that are safe to update via PATCH */
+const UPDATABLE_FIELDS = [
+  'name',
+  'tagline',
+  'description',
+  'websiteUrl',
+  'demoUrl',
+  'categoryId',
+  'logoUrl',
+  'heroImageUrl',
+  'galleryUrls',
+  'videoUrl',
+  'scheduledFor',
+] as const
 
 export const productService = {
   /**
@@ -75,7 +127,7 @@ export const productService = {
     const page = products.slice(0, PAGE_SIZE)
 
     return {
-      data: page.map((p) => toProductResponse(withCounts(p))),
+      data: page.map((p: ProductWithCounts) => toProductResponse(withCounts(p))),
       nextCursor: hasMore ? page[page.length - 1].id : null,
       hasMore,
     }
@@ -101,6 +153,22 @@ export const productService = {
     }
 
     return toProductResponse({ ...withCounts(product), hasVoted })
+  },
+
+  /**
+   * Returns a product by slug for the edit page — allows draft/owned products.
+   * Only the owner can fetch their own draft; others get 404.
+   */
+  async getOwnBySlug(slug: string, userId: string): Promise<ProductResponse> {
+    const product = await db.product.findUnique({
+      where: { slug },
+      include: productInclude,
+    })
+
+    if (!product) throw AppError.notFound('Product')
+    if (product.makerId !== userId) throw AppError.notFound('Product')
+
+    return toProductResponse(withCounts(product))
   },
 
   async create(userId: string, data: {
@@ -156,9 +224,42 @@ export const productService = {
     if (!product) throw AppError.notFound('Product')
     if (product.makerId !== userId) throw AppError.forbidden('You can only edit your own products')
 
+    // Only allow updatable fields
+    const updateData: Record<string, unknown> = {}
+    for (const field of UPDATABLE_FIELDS) {
+      if (field in data) {
+        updateData[field] = data[field]
+      }
+    }
+
+    // Regenerate slug if name changed
+    if (updateData.name && typeof updateData.name === 'string') {
+      const newSlug = slugify(updateData.name)
+      if (newSlug !== slug) {
+        const existing = await db.product.findUnique({ where: { slug: newSlug } })
+        if (existing && existing.id !== product.id) {
+          throw AppError.conflict('A product with this name already exists')
+        }
+      }
+      updateData.slug = newSlug
+    }
+
+    // Handle scheduledFor changes: if setting a new schedule while draft, keep draft
+    // if clearing schedule and currently draft, publish immediately
+    if ('scheduledFor' in data) {
+      if (data.scheduledFor) {
+        // Setting/rescheduling — stay draft until publish
+        updateData.launchedAt = null
+      } else if (data.scheduledFor === null && product.status === 'draft' && !product.launchedAt) {
+        // Clearing schedule on a draft — publish now
+        updateData.launchedAt = new Date()
+        updateData.status = 'submitted'
+      }
+    }
+
     const updated = await db.product.update({
       where: { slug },
-      data,
+      data: updateData,
       include: productInclude,
     })
 

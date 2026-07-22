@@ -44,8 +44,9 @@ type ProductDetailProps = {
  * Re-fetches with the access token once auth is ready so hasVoted is accurate.
  */
 export function ProductDetail({ initialProduct }: ProductDetailProps) {
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth()
   const [product, setProduct] = useState(initialProduct)
+  const isMaker = user?.id === product.maker.id
 
   // Keep local state in sync when Next navigates between product slugs
   useEffect(() => {
@@ -127,6 +128,17 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
               </span>
             ) : null}
           </div>
+
+          {isMaker ? (
+            <div className="mb-5">
+              <Link
+                href={`/products/${product.slug}/edit`}
+                className="inline-flex items-center gap-1.5 rounded-pill border border-hairline px-4 py-2 text-xs font-medium text-ink transition hover:bg-soft-stone"
+              >
+                Edit product
+              </Link>
+            </div>
+          ) : null}
 
           <div className="mb-9 flex items-center gap-3 border-y border-hairline py-[18px]">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-deep-green text-[13px] font-medium text-white">

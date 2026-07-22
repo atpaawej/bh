@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
+import type { Prisma } from '@prisma/client'
 import { db } from '../db'
 import { config } from '../config'
 import { AppError } from '../middleware/errorHandler'
@@ -280,7 +281,7 @@ export const authService = {
   async refresh(rawToken: string): Promise<AuthSession> {
     const tokenHash = hashRefreshToken(rawToken)
 
-    return db.$transaction(async (tx) => {
+    return db.$transaction(async (tx: Prisma.TransactionClient) => {
       const stored = await tx.refreshToken.findUnique({
         where: { token: tokenHash },
         include: { user: true },
