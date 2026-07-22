@@ -1,3 +1,5 @@
+import { LaunchCta } from '../LaunchCta'
+
 export function CtaBand() {
   return (
     <section className="bg-canvas py-20 md:py-24">
@@ -12,12 +14,8 @@ export function CtaBand() {
             for next Friday and build in public until then.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <span className="inline-flex cursor-default items-center rounded-pill bg-primary px-7 py-3.5 text-sm font-medium text-white">
-              Launch your product
-            </span>
-            <span className="text-sm text-ink underline-offset-4">
-              Explore the leaderboard →
-            </span>
+            <LaunchCta size="lg" />
+            <span className="text-sm text-ink underline-offset-4">Explore the leaderboard →</span>
           </div>
         </div>
       </div>
