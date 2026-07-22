@@ -1,4 +1,5 @@
 import { ProductFeed } from '../components/ProductFeed'
+import { LaunchCta } from '../components/LaunchCta'
 import { CtaBand } from '../components/landing/CtaBand'
 import { HowItWorks } from '../components/landing/HowItWorks'
 import { MakerStory } from '../components/landing/MakerStory'
@@ -20,9 +21,7 @@ export default function HomePage() {
             the community decides what rises.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <span className="inline-flex items-center rounded-pill bg-primary px-6 py-3 text-sm font-medium text-white">
-              Launch your product
-            </span>
+            <LaunchCta size="md" />
             <span className="text-sm text-ink underline-offset-4 hover:underline">
               Explore leaderboard →
             </span>

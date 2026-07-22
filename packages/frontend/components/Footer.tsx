@@ -54,7 +54,7 @@ export function Footer() {
           <FooterCol
             title="Launch"
             links={[
-              { label: 'Submit product', href: '#' },
+              { label: 'Submit product', href: '/launch' },
               { label: 'Maker guide', href: '#' },
               { label: 'Best practices', href: '#' },
             ]}
