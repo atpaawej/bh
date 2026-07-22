@@ -2,7 +2,7 @@
 
 import { Router } from 'express'
 import { createProductSchema } from '../validators/productSchema'
-import { authMiddleware } from '../middleware/auth'
+import { authMiddleware, optionalAuthMiddleware } from '../middleware/auth'
 import { validate } from '../middleware/validate'
 import { voteLimiter } from '../middleware/rateLimiter'
 import { asyncHandler } from '../middleware/asyncHandler'
@@ -16,8 +16,8 @@ router.get('/', asyncHandler(async (req, res) => {
   res.json(products)
 }))
 
-router.get('/:slug', asyncHandler(async (req, res) => {
-  const product = await productService.getBySlug(req.params.slug)
+router.get('/:slug', optionalAuthMiddleware, asyncHandler(async (req, res) => {
+  const product = await productService.getBySlug(req.params.slug, req.user?.id)
   res.json(product)
 }))
 

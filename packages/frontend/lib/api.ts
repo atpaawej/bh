@@ -110,6 +110,10 @@ export function fetchCategories(): Promise<CategoryResponse[]> {
   return request('/categories')
 }
 
+export function fetchProductBySlug(slug: string): Promise<ProductResponse> {
+  return request(`/products/${encodeURIComponent(slug)}`)
+}
+
 // ── Auth ──
 
 export function startOAuth(provider: 'google' | 'github'): Promise<OAuthUrlResponse> {

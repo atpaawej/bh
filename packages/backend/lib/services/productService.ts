@@ -81,15 +81,26 @@ export const productService = {
     }
   },
 
-  async getBySlug(slug: string): Promise<ProductResponse> {
+  async getBySlug(slug: string, userId?: string): Promise<ProductResponse> {
     const product = await db.product.findUnique({
       where: { slug },
       include: productInclude,
     })
 
-    if (!product) throw AppError.notFound('Product')
+    // Drafts and other non-public statuses stay hidden (list already scopes this way)
+    if (!product || (product.status !== 'submitted' && product.status !== 'featured')) {
+      throw AppError.notFound('Product')
+    }
 
-    return toProductResponse(withCounts(product))
+    let hasVoted = false
+    if (userId) {
+      const vote = await db.vote.findUnique({
+        where: { userId_productId: { userId, productId: product.id } },
+      })
+      hasVoted = !!vote
+    }
+
+    return toProductResponse({ ...withCounts(product), hasVoted })
   },
 
   async create(userId: string, data: {
