@@ -119,8 +119,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 
   const logout = useCallback(async () => {
+    // Best-effort server invalidation; always clear client session afterward.
+    // Network failures cannot revoke a cookie we never reached — user still
+    // must appear logged out locally.
     try {
       await logoutRequest()
+    } catch {
+      // Server logout failed (offline / 5xx). Local session still cleared below.
     } finally {
       setAccessToken(null)
       setUser(null)

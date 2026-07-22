@@ -162,6 +162,10 @@ export function refreshSession(): Promise<AuthSessionResponse> {
 }
 
 export async function logoutRequest(): Promise<void> {
-  await requestOnce<void>('/auth/logout', { method: 'POST' })
-  setAccessToken(null)
+  try {
+    await requestOnce<void>('/auth/logout', { method: 'POST' })
+  } finally {
+    // Always drop client JWT even if the network call fails
+    setAccessToken(null)
+  }
 }
