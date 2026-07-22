@@ -1,8 +1,14 @@
 import { ProductFeed } from '../components/ProductFeed'
+import { CtaBand } from '../components/landing/CtaBand'
+import { HowItWorks } from '../components/landing/HowItWorks'
+import { MakerStory } from '../components/landing/MakerStory'
+import { TrustStrip } from '../components/landing/TrustStrip'
+import { WhySection } from '../components/landing/WhySection'
 
 export default function HomePage() {
   return (
     <>
+      {/* Hero */}
       <section className="pb-8 pt-14 md:pb-12 md:pt-20">
         <div className="mx-auto max-w-container px-6 text-center">
           <p className="mono-label mb-4">Built for Indian makers</p>
@@ -24,7 +30,15 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Live weekly feed */}
       <ProductFeed />
+
+      {/* Marketing story below the feed */}
+      <TrustStrip />
+      <WhySection />
+      <MakerStory />
+      <HowItWorks />
+      <CtaBand />
     </>
   )
 }

@@ -7,13 +7,15 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "lint": "turbo lint && npm run lint:boundaries",
+    "dev": "turbo run dev --filter=@bh/backend --filter=@bh/frontend",
+    "dev:backend": "turbo run dev --filter=@bh/backend",
+    "dev:frontend": "turbo run dev --filter=@bh/frontend",
+    "build": "turbo run build",
+    "lint": "turbo run lint && npm run lint:boundaries",
     "lint:boundaries": "depcruise packages",
-    "test": "turbo test",
+    "test": "turbo run test",
     "format": "prettier --write \"packages/**/*.{ts,tsx,json}\"",
-    "clean": "turbo clean"
+    "clean": "turbo run clean"
   },
   "devDependencies": {
     "dependency-cruiser": "^18.1.0",
