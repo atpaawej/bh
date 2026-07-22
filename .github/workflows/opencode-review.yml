@@ -10,7 +10,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: read
     steps:
       - uses: actions/checkout@v6
@@ -22,8 +22,10 @@ jobs:
         uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           model: opencode/deepseek-v4-flash-free
+          use_github_token: true
           prompt: |
             Review this pull request using the following methodology:
 
