@@ -1,20 +1,24 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
+import { User } from 'lucide-react'
 import { useAuth } from '../lib/auth/AuthContext'
 
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return '?'
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase()
-  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase()
+function DefaultAvatarIcon() {
+  return <User className="h-5 w-5 text-muted" strokeWidth={1.75} aria-hidden />
 }
 
 export function UserMenu() {
   const { user, logout } = useAuth()
   const [open, setOpen] = useState(false)
+  const [avatarFailed, setAvatarFailed] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const menuId = useId()
+
+  // Reset broken-image state when the URL changes (e.g. re-login)
+  useEffect(() => {
+    setAvatarFailed(false)
+  }, [user?.avatarUrl])
 
   useEffect(() => {
     if (!open) return
@@ -39,21 +43,28 @@ export function UserMenu() {
 
   if (!user) return null
 
+  const showImage = Boolean(user.avatarUrl) && !avatarFailed
+
   return (
     <div ref={rootRef} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-hairline bg-soft-stone text-xs font-medium text-ink transition hover:border-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-deep-green"
+        className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-hairline bg-soft-stone text-ink transition hover:border-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-deep-green"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
         aria-label="Account menu"
       >
-        {user.avatarUrl ? (
-          <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+        {showImage ? (
+          <img
+            src={user.avatarUrl!}
+            alt=""
+            className="h-full w-full object-cover"
+            onError={() => setAvatarFailed(true)}
+          />
         ) : (
-          <span aria-hidden>{initials(user.name)}</span>
+          <DefaultAvatarIcon />
         )}
       </button>
 
