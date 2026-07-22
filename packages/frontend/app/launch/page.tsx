@@ -241,7 +241,7 @@ export default function LaunchPage() {
             {fieldErrors?.name?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
-            <p className="mt-1 text-right text-xs text-muted">{name.length}/100</p>
+            <p className="mt-1 text-right text-xs text-muted">{name.length}/100 (min 3)</p>
           </div>
 
           {/* ── Tagline ── */}
@@ -262,7 +262,7 @@ export default function LaunchPage() {
             {fieldErrors?.tagline?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
-            <p className="mt-1 text-right text-xs text-muted">{tagline.length}/150</p>
+            <p className="mt-1 text-right text-xs text-muted">{tagline.length}/150 (min 10)</p>
           </div>
 
           {/* ── Description ── */}
@@ -274,7 +274,7 @@ export default function LaunchPage() {
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tell us about your product — what problem it solves, who it's for, and what makes it special..."
+              placeholder="Tell us about your product — what problem it solves, who it's for, and what makes it special... (min 50 characters)"
               className={`${inputClasses} min-h-[160px] resize-y`}
               maxLength={5000}
               required
@@ -282,7 +282,7 @@ export default function LaunchPage() {
             {fieldErrors?.description?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
-            <p className="mt-1 text-right text-xs text-muted">{description.length}/5000</p>
+            <p className="mt-1 text-right text-xs text-muted">{description.length}/5000 (min 50)</p>
           </div>
 
           {/* ── Website URL ── */}
@@ -302,6 +302,7 @@ export default function LaunchPage() {
             {fieldErrors?.websiteUrl?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
+            <p className="mt-1 text-xs text-muted">Must be a valid URL (e.g. https://example.com)</p>
           </div>
 
           {/* ── Demo URL ── */}
@@ -320,6 +321,7 @@ export default function LaunchPage() {
             {fieldErrors?.demoUrl?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
+            <p className="mt-1 text-xs text-muted">Optional — must be a valid URL if provided</p>
           </div>
 
           {/* ── Category ── */}
@@ -496,6 +498,7 @@ export default function LaunchPage() {
             {fieldErrors?.videoUrl?.map((msg) => (
               <p key={msg} className={errorClasses}>{msg}</p>
             ))}
+            <p className="mt-1 text-xs text-muted">Optional — must be a valid URL if provided</p>
           </div>
 
           {/* ── Submit Actions ── */}
