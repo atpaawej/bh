@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Launch your product — BharatHunt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo"><span>Bharat</span>Hunt</a>
+      <div class="nav-center">
+        <a href="index.html" class="nav-link">Discover</a>
+        <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+        <a href="category.html" class="nav-link">Categories</a>
+        <a href="launch.html" class="nav-link active">Launch</a>
+      </div>
+      <div class="nav-right">
+        <a href="login.html" class="nav-link">Sign in</a>
+        <a href="launch.html" class="btn-primary btn-sm">Get Started</a>
+        <button class="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="stone-band" style="min-height:calc(100vh - 64px);">
+    <div class="container" style="padding-top:48px;padding-bottom:80px;">
+      <div style="text-align:center;margin-bottom:40px;">
+        <p class="mono-label" style="margin-bottom:12px;">Submit</p>
+        <h1 class="display-section" style="margin-bottom:12px;">Share your creation</h1>
+        <p class="body-lg" style="max-width:440px;margin:0 auto;">Every great product starts with a bold step. Tell the community what you've built.</p>
+      </div>
+
+      <form class="form-card" onsubmit="return false;">
+        <div class="form-group">
+          <label>Product name <span class="req">*</span></label>
+          <input type="text" placeholder="e.g. Krutrim AI" />
+        </div>
+        <div class="form-group">
+          <label>Tagline <span class="req">*</span></label>
+          <input type="text" placeholder="One line that describes your product" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Website URL <span class="req">*</span></label>
+            <input type="url" placeholder="https://yourproduct.com" />
+          </div>
+          <div class="form-group">
+            <label>Category <span class="req">*</span></label>
+            <select>
+              <option value="">Select a category</option>
+              <option>AI & ML</option>
+              <option>Developer Tools</option>
+              <option>Design</option>
+              <option>Mobile</option>
+              <option>Fintech</option>
+              <option>HealthTech</option>
+              <option>Climate Tech</option>
+              <option>Gaming</option>
+              <option>Education</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description <span class="req">*</span></label>
+          <textarea placeholder="Tell the community about your product — what inspired you, who it helps, and how it's going."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Thumbnail <span class="req">*</span></label>
+          <div class="upload-zone">
+            <div style="margin-bottom:8px;font-size:22px;">↑</div>
+            Drop an image or click to browse<br />
+            <span style="font-size:12px;">PNG, JPG up to 5MB · 16:9 recommended</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;">
+          <button type="submit" class="btn-primary btn-lg">Share with the world</button>
+          <button type="reset" class="btn-secondary">Save draft</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand"><span>Bharat</span>Hunt</div>
+          <p class="footer-desc">India's home for makers — where creations find their people.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Discover</h4>
+          <a href="index.html">Home</a>
+          <a href="leaderboard.html">Leaderboard</a>
+          <a href="category.html">Categories</a>
+        </div>
+        <div class="footer-col">
+          <h4>Launch</h4>
+          <a href="launch.html">Submit product</a>
+          <a href="#">Maker guide</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 BharatHunt. Made with care in India.</span>
+        <div class="footer-bottom-links"><a href="#">FAQ</a><a href="#">Terms</a></div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

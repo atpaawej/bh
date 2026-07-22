@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Categories — BharatHunt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo"><span>Bharat</span>Hunt</a>
+      <div class="nav-center">
+        <a href="index.html" class="nav-link">Discover</a>
+        <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+        <a href="category.html" class="nav-link active">Categories</a>
+        <a href="launch.html" class="nav-link">Launch</a>
+      </div>
+      <div class="nav-right">
+        <a href="login.html" class="nav-link">Sign in</a>
+        <a href="launch.html" class="btn-primary btn-sm">Get Started</a>
+        <button class="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <p class="mono-label" style="margin-bottom:12px;">Browse</p>
+      <h1>Categories</h1>
+      <p>Find products by what they solve — AI, fintech, climate, tools, and more.</p>
+    </div>
+
+    <div class="filter-row">
+      <button class="filter-chip active" type="button">All</button>
+      <button class="filter-chip" type="button">AI & ML</button>
+      <button class="filter-chip" type="button">Fintech</button>
+      <button class="filter-chip" type="button">Dev Tools</button>
+      <button class="filter-chip" type="button">Climate Tech</button>
+      <button class="filter-chip" type="button">Gaming</button>
+      <button class="filter-chip" type="button">HealthTech</button>
+      <button class="filter-chip" type="button">Education</button>
+      <button class="filter-chip" type="button">Design</button>
+    </div>
+
+    <div class="product-grid" style="padding-bottom:80px;">
+      <a href="product.html" class="product-card">
+        <div class="product-card-top">
+          <div class="product-icon">🧠</div>
+          <button class="vote-pill" type="button"><span class="arrow">▲</span>1.4k</button>
+        </div>
+        <h3>Krutrim AI</h3>
+        <p>Full-stack AI for 22 Indian languages — LLM, vision, and speech.</p>
+        <div class="product-card-footer">
+          <div class="product-meta"><span>💬 24</span></div>
+          <span class="tag-pill">AI & ML</span>
+        </div>
+      </a>
+      <a href="product.html" class="product-card">
+        <div class="product-card-top">
+          <div class="product-icon">💳</div>
+          <button class="vote-pill" type="button"><span class="arrow">▲</span>1.1k</button>
+        </div>
+        <h3>Bharat Pay</h3>
+        <p>UPI, cards, and BNPL for India's small businesses.</p>
+        <div class="product-card-footer">
+          <div class="product-meta"><span>💬 42</span></div>
+          <span class="tag-pill">Fintech</span>
+        </div>
+      </a>
+      <a href="product.html" class="product-card">
+        <div class="product-card-top">
+          <div class="product-icon">🌧️</div>
+          <button class="vote-pill" type="button"><span class="arrow">▲</span>892</button>
+        </div>
+        <h3>Rain Drop</h3>
+        <p>Village-level weather forecasts for Indian farmers.</p>
+        <div class="product-card-footer">
+          <div class="product-meta"><span>💬 16</span></div>
+          <span class="tag-pill">Climate</span>
+        </div>
+      </a>
+      <a href="product.html" class="product-card">
+        <div class="product-card-top">
+          <div class="product-icon">🤖</div>
+          <button class="vote-pill" type="button"><span class="arrow">▲</span>756</button>
+        </div>
+        <h3>PhyROS</h3>
+        <p>Robotics simulation for Indian manufacturing floors.</p>
+        <div class="product-card-footer">
+          <div class="product-meta"><span>💬 31</span></div>
+          <span class="tag-pill">Dev Tools</span>
+        </div>
+      </a>
+      <a href="product.html" class="product-card">
+        <div class="product-card-top">
+          <div class="product-icon">📄</div>
+          <button class="vote-pill" type="button"><span class="arrow">▲</span>634</button>
+        </div>
+        <h3>Docs Up!</h3>
+        <p>Self-updating API docs for SaaS teams shipping fast.</p>
+        <div class="product-card-footer">
+          <div class="product-meta"><span>💬 18</span></div>
+          <span class="tag-pill">Dev Tools</span>
+        </div>
+      </a>
+      <a href="product.html" class="product-card">
+        <div class="product-card-top">
+          <div class="product-icon">🏎️</div>
+          <button class="vote-pill" type="button"><span class="arrow">▲</span>521</button>
+        </div>
+        <h3>Rush India</h3>
+        <p>Street racing across Mumbai, Delhi, and Bengaluru.</p>
+        <div class="product-card-footer">
+          <div class="product-meta"><span>💬 55</span></div>
+          <span class="tag-pill">Gaming</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand"><span>Bharat</span>Hunt</div>
+          <p class="footer-desc">India's home for makers — where creations find their people.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Discover</h4>
+          <a href="index.html">Home</a>
+          <a href="leaderboard.html">Leaderboard</a>
+          <a href="category.html">Categories</a>
+        </div>
+        <div class="footer-col">
+          <h4>Launch</h4>
+          <a href="launch.html">Submit product</a>
+          <a href="#">Maker guide</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 BharatHunt. Made with care in India.</span>
+        <div class="footer-bottom-links"><a href="#">FAQ</a><a href="#">Terms</a></div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
