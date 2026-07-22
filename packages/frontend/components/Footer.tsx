@@ -47,7 +47,7 @@ export function Footer() {
             title="Discover"
             links={[
               { label: 'Home', href: '/' },
-              { label: 'Leaderboard', href: '#' },
+              { label: 'Leaderboard', href: '/leaderboard' },
               { label: 'Categories', href: '#' },
             ]}
           />

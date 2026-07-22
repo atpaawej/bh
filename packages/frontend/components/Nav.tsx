@@ -22,7 +22,9 @@ export function Nav() {
           <Link href="/launch" className="text-sm font-medium text-ink">
             Launch
           </Link>
-          <span className="text-sm text-muted">Leaderboard</span>
+          <Link href="/leaderboard" className="text-sm font-medium text-ink">
+            Leaderboard
+          </Link>
           <span className="text-sm text-muted">Categories</span>
           <LaunchNavLink />
         </div>

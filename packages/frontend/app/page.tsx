@@ -5,6 +5,7 @@ import { HowItWorks } from '../components/landing/HowItWorks'
 import { MakerStory } from '../components/landing/MakerStory'
 import { TrustStrip } from '../components/landing/TrustStrip'
 import { WhySection } from '../components/landing/WhySection'
+import Link from 'next/link'
 
 export default function HomePage() {
   return (
@@ -22,9 +23,12 @@ export default function HomePage() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <LaunchCta size="md" />
-            <span className="text-sm text-ink underline-offset-4 hover:underline">
+            <Link
+              href="/leaderboard"
+              className="text-sm text-ink underline-offset-4 hover:underline"
+            >
               Explore leaderboard →
-            </span>
+            </Link>
           </div>
         </div>
       </section>
