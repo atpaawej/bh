@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { slugify } from "../shared/utils";
-import { resolveWeekRange } from "../shared/week";
+import { resolveWeekRange } from "@bh/shared";
 import { AppError } from "../middleware/errorHandler";
 import { toProductResponse } from "./productMapper";
 import type { ProductResponse, PaginatedResponse } from "@bh/shared";

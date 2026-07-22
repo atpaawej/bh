@@ -7,8 +7,11 @@ import { VoteButton } from "./VoteButton";
 
 export function ProductCard({
   product: initialProduct,
+  rank,
 }: {
   product: ProductResponse;
+  /** Optional rank position to display as a badge (leaderboard). */
+  rank?: number;
 }) {
   const [product, setProduct] = useState(initialProduct);
 
@@ -24,11 +27,28 @@ export function ProductCard({
       className="group flex min-h-[280px] flex-col rounded-sm bg-soft-stone p-7 transition-colors hover:bg-[#e6e4de]"
     >
       <div className="mb-5 flex items-start justify-between gap-3">
-        <div className="h-12 w-12 overflow-hidden rounded-sm border border-card-border bg-canvas">
-          {logoSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoSrc} alt="" className="h-full w-full object-cover" />
+        <div className="flex items-center gap-3">
+          {rank != null ? (
+            <span
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-sm font-mono text-sm font-medium ${
+                rank <= 3
+                  ? "bg-deep-green text-white"
+                  : "border border-hairline text-muted"
+              }`}
+            >
+              {rank}
+            </span>
           ) : null}
+          <div className="h-12 w-12 overflow-hidden rounded-sm border border-card-border bg-canvas">
+            {logoSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logoSrc}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : null}
+          </div>
         </div>
 
         <VoteButton

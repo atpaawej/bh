@@ -117,6 +117,19 @@ export function fetchProducts(
   return request(`/products${qs ? `?${qs}` : ""}`);
 }
 
+/**
+ * Fetch the leaderboard for a given week, ranked by vote count descending.
+ * Defaults to the current week when no week param is provided.
+ */
+export function fetchLeaderboard(
+  params: { week?: string } = {},
+): Promise<PaginatedResponse<ProductResponse>> {
+  const search = new URLSearchParams();
+  if (params.week) search.set("week", params.week);
+  const qs = search.toString();
+  return request(`/leaderboard${qs ? `?${qs}` : ""}`);
+}
+
 export function fetchCategories(): Promise<CategoryResponse[]> {
   return request("/categories");
 }
@@ -141,49 +154,53 @@ export function unvoteForProduct(slug: string): Promise<ProductResponse> {
 
 /** Fetches a product for editing — returns drafts for the owner. */
 export function fetchProductForEdit(slug: string): Promise<ProductResponse> {
-  return request(`/products/${encodeURIComponent(slug)}/edit`)
+  return request(`/products/${encodeURIComponent(slug)}/edit`);
 }
 
 // ── Product CRUD ──
 
-export function createProduct(input: CreateProductInput): Promise<ProductResponse> {
-  return request('/products', {
-    method: 'POST',
+export function createProduct(
+  input: CreateProductInput,
+): Promise<ProductResponse> {
+  return request("/products", {
+    method: "POST",
     body: JSON.stringify(input),
-  })
+  });
 }
 
 export function updateProduct(
   slug: string,
-  input: Partial<CreateProductInput>
+  input: Partial<CreateProductInput>,
 ): Promise<ProductResponse> {
   return request(`/products/${encodeURIComponent(slug)}`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: JSON.stringify(input),
-  })
+  });
 }
 
 export function deleteProduct(slug: string): Promise<void> {
   return request(`/products/${encodeURIComponent(slug)}`, {
-    method: 'DELETE',
-  })
+    method: "DELETE",
+  });
 }
 
 export interface SignedUploadUrl {
-  url: string
-  publicId: string
-  signature: string
-  timestamp: number
-  cloudName: string
-  apiKey: string
+  url: string;
+  publicId: string;
+  signature: string;
+  timestamp: number;
+  cloudName: string;
+  apiKey: string;
 }
 
 /**
  * Fetches a signed Cloudinary upload URL for a given folder type.
  * The frontend then uses this to upload files directly to Cloudinary.
  */
-export function fetchUploadUrl(folder: 'logos' | 'heroes' | 'gallery'): Promise<SignedUploadUrl> {
-  return request(`/products/upload-url?folder=${encodeURIComponent(folder)}`)
+export function fetchUploadUrl(
+  folder: "logos" | "heroes" | "gallery",
+): Promise<SignedUploadUrl> {
+  return request(`/products/upload-url?folder=${encodeURIComponent(folder)}`);
 }
 
 // ── Auth ──
@@ -282,10 +299,7 @@ export function createComment(
  * @param slug - The product slug
  * @param commentId - UUID of the comment to delete
  */
-export function deleteComment(
-  slug: string,
-  commentId: string,
-): Promise<void> {
+export function deleteComment(slug: string, commentId: string): Promise<void> {
   return request(
     `/products/${encodeURIComponent(slug)}/comments/${commentId}`,
     { method: "DELETE" },

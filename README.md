@@ -310,6 +310,13 @@ Base URL: `http://localhost:4000/api`
 |---|---|---|
 | `GET` | `/categories` | List all categories |
 
+### Leaderboard
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/leaderboard` | Current week's products ranked by votes (public) |
+| `GET` | `/leaderboard?week=2026-W30` | Specific week's ranked products (public) |
+
 ### Health
 
 | Method | Path | Description |
