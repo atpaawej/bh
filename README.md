@@ -1,12 +1,12 @@
 <div align="center">
   <br/>
   <pre>
-██╗  ██╗██╗██████╗ ██████╗ ███████╗███╗   ██╗████████╗██╗  ██╗██╗   ██╗███╗   ██╗████████╗
-██║  ██║██║██╔══██╗██╔══██╗██╔════╝████╗  ██║╚══██╔══╝██║  ██║██║   ██║████╗  ██║╚══██╔══╝
-███████║██║██████╔╝██████╔╝█████╗  ██╔██╗ ██║   ██║   ███████║██║   ██║██╔██╗ ██║   ██║
-██╔══██║██║██╔══██╗██╔══██╗██╔══╝  ██║╚██╗██║   ██║   ██╔══██║██║   ██║██║╚██╗██║   ██║
-██║  ██║██║██████╔╝██║  ██║███████╗██║ ╚████║   ██║   ██║  ██║╚██████╔╝██║ ╚████║   ██║
-╚═╝  ╚═╝╚═╝╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝
+██████╗ ██╗  ██╗ █████╗ ██████╗  █████╗ ████████╗██╗  ██╗██╗   ██╗███╗   ██╗████████╗
+██╔══██╗██║  ██║██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██║  ██║██║   ██║████╗  ██║╚══██╔══╝
+██████╔╝███████║███████║██████╔╝███████║   ██║   ███████║██║   ██║██╔██╗ ██║   ██║   
+██╔══██╗██╔══██║██╔══██║██╔══██╗██╔══██║   ██║   ██╔══██║██║   ██║██║╚██╗██║   ██║   
+██████╔╝██║  ██║██║  ██║██║  ██║██║  ██║   ██║   ██║  ██║╚██████╔╝██║ ╚████║   ██║   
+╚══════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   
   </pre>
   <h3>🇮🇳 Indian tech deserves a launchpad.</h3>
   <p>
@@ -65,86 +65,3 @@ No gatekeepers. No editorial review. Just pure, community-driven discovery — r
 ---
 
 ## 🏗 Architecture
-
-```
-bh/
-├── packages/
-│   ├── frontend/          # Next.js + Tailwind CSS app
-│   ├── backend/           # Express + TypeScript API
-│   └── shared/            # Shared types, constants, contracts
-├── package.json           # Turborepo root
-└── turbo.json             # Pipeline configuration
-```
-
-**Architecture rules:**
-- `frontend → shared ← backend`
-- Backend follows: `routes → controllers → services → db`
-- Services are pure TypeScript — zero HTTP knowledge
-- All contracts live in `packages/shared` — frontend and backend stay in sync
-
-Read the full design decisions in [ARCHITECTURE.md](ARCHITECTURE.md).
-
----
-
-## 🛠 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js + Tailwind CSS |
-| Backend | TypeScript + Express |
-| Database | Supabase (PostgreSQL) |
-| ORM | Prisma |
-| Auth | Supabase Auth (Magic link + Google + GitHub) |
-| Media | Cloudinary |
-| Monorepo | Turborepo |
-| Deploy | Vercel (frontend) + TBD (backend) |
-
----
-
-## 🚀 Getting Started
-
-```bash
-# Clone the repo
-git clone https://github.com/atpaawej/bh.git
-cd bh
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env
-# Fill in your Supabase, Cloudinary, and JWT secrets
-
-# Start development
-npm run dev
-```
-
----
-
-## 🤝 Contributing
-
-BharatHunt is open source and welcomes contributors.
-
-- **Found a bug?** Open an issue
-- **Want a feature?** Start a discussion
-- **Code changes?** Open a PR with a clear description
-
-Read the full guidelines in [CONTRIBUTING.md](CONTRIBUTING.md).
-
----
-
-## 📜 License
-
-[MIT](LICENSE) — do what you love, give credit where it's due.
-
----
-
-<div align="center">
-  <br/>
-  <p>
-    Built with ❤️ for the Indian maker community.
-    <br/>
-    <sub>Made in India 🇮🇳</sub>
-  </p>
-  <br/>
-</div>
