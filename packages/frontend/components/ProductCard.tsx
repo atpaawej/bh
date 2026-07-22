@@ -1,16 +1,17 @@
-import Link from 'next/link'
-import type { ProductResponse } from '@bh/shared'
+"use client";
 
-function formatVotes(count: number): string {
-  if (count >= 1000) {
-    const k = count / 1000
-    return `${k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)}k`
-  }
-  return String(count)
-}
+import { useState } from "react";
+import Link from "next/link";
+import type { ProductResponse } from "@bh/shared";
+import { VoteButton } from "./VoteButton";
 
-export function ProductCard({ product }: { product: ProductResponse }) {
-  const logoSrc = product.logoUrl || product.heroImageUrl
+export function ProductCard({
+  product: initialProduct,
+}: {
+  product: ProductResponse;
+}) {
+  const [product, setProduct] = useState(initialProduct);
+  const logoSrc = product.logoUrl || product.heroImageUrl;
 
   return (
     <Link
@@ -20,16 +21,20 @@ export function ProductCard({ product }: { product: ProductResponse }) {
       <div className="mb-5 flex items-start justify-between gap-3">
         <div className="h-12 w-12 overflow-hidden rounded-sm border border-card-border bg-canvas">
           {logoSrc ? (
-            // User-uploaded Cloudinary URLs — plain img avoids Next host allowlist friction
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoSrc} alt="" className="h-full w-full object-cover" />
           ) : null}
         </div>
 
-        <div className="inline-flex min-w-[52px] flex-col items-center gap-0.5 rounded-sm border border-hairline bg-canvas px-3 py-2 font-mono text-xs text-ink transition-colors group-hover:border-deep-green group-hover:text-deep-green">
-          <span className="text-[10px] leading-none">▲</span>
-          <span>{formatVotes(product.voteCount)}</span>
-        </div>
+        <VoteButton
+          productId={product.id}
+          productSlug={product.slug}
+          initialHasVoted={product.hasVoted}
+          initialVoteCount={product.voteCount}
+          onVote={(updated) => setProduct((prev) => ({ ...prev, ...updated }))}
+          variant="card"
+          inCard
+        />
       </div>
 
       {product.heroImageUrl ? (
@@ -43,8 +48,12 @@ export function ProductCard({ product }: { product: ProductResponse }) {
         </div>
       ) : null}
 
-      <h3 className="mb-2 text-xl font-medium tracking-tight text-ink">{product.name}</h3>
-      <p className="mb-5 flex-1 text-sm leading-relaxed text-body-muted">{product.tagline}</p>
+      <h3 className="mb-2 text-xl font-medium tracking-tight text-ink">
+        {product.name}
+      </h3>
+      <p className="mb-5 flex-1 text-sm leading-relaxed text-body-muted">
+        {product.tagline}
+      </p>
 
       <div className="flex items-center justify-between gap-3 border-t border-black/[0.06] pt-4">
         <div className="flex min-w-0 items-center gap-2">
@@ -62,14 +71,16 @@ export function ProductCard({ product }: { product: ProductResponse }) {
               </span>
             )}
           </div>
-          <span className="truncate text-xs text-muted">{product.maker.name}</span>
+          <span className="truncate text-xs text-muted">
+            {product.maker.name}
+          </span>
         </div>
         <span className="shrink-0 rounded-full border border-card-border bg-canvas px-2.5 py-1 text-xs text-body-muted">
           {product.category.name}
         </span>
       </div>
     </Link>
-  )
+  );
 }
 
 export function ProductCardSkeleton() {
@@ -91,5 +102,5 @@ export function ProductCardSkeleton() {
         <div className="h-6 w-20 rounded-full bg-hairline/50" />
       </div>
     </div>
-  )
+  );
 }
