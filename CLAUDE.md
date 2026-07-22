@@ -1,3 +1,7 @@
+# Coding standards
+
+Follow [CODING_STANDARDS.md](./CODING_STANDARDS.md) for architecture rules, naming, testing, and type discipline. Non-negotiable for all code changes.
+
 # Agent skills
 
 ### Issue tracker
