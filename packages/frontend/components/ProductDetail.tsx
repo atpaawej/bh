@@ -1,86 +1,89 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import type { ProductResponse } from '@bh/shared'
-import { ApiClientError, fetchProductBySlug } from '../lib/api'
-import { useAuth } from '../lib/auth/AuthContext'
-import { toVideoEmbedUrl } from '../lib/videoEmbed'
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import type { ProductResponse } from "@bh/shared";
+import { ApiClientError, fetchProductBySlug } from "../lib/api";
+import { useAuth } from "../lib/auth/AuthContext";
+import { toVideoEmbedUrl } from "../lib/videoEmbed";
+import { VoteButton } from "./VoteButton";
 
 function formatVotes(count: number): string {
   if (count >= 1000) {
-    const k = count / 1000
-    return `${k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)}k`
+    const k = count / 1000;
+    return `${k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)}k`;
   }
-  return String(count)
+  return String(count);
 }
 
 function formatLaunchDate(iso: string): string {
-  if (!iso) return '—'
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return '—'
-  return date.toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC',
-  })
+  if (!iso) return "—";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 function makerInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return '?'
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase()
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
 type ProductDetailProps = {
   /** Server-fetched product (public; hasVoted may be false). */
-  initialProduct: ProductResponse
-}
+  initialProduct: ProductResponse;
+};
 
 /**
  * Full product detail view matching the Cohere prototype layout.
  * Re-fetches with the access token once auth is ready so hasVoted is accurate.
  */
 export function ProductDetail({ initialProduct }: ProductDetailProps) {
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth()
-  const [product, setProduct] = useState(initialProduct)
-  const isMaker = user?.id === product.maker.id
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const [product, setProduct] = useState(initialProduct);
+  const isMaker = user?.id === product.maker.id;
 
   // Keep local state in sync when Next navigates between product slugs
   useEffect(() => {
-    setProduct(initialProduct)
-  }, [initialProduct])
+    setProduct(initialProduct);
+  }, [initialProduct]);
 
   useEffect(() => {
-    if (authLoading || !isAuthenticated) return
+    if (authLoading || !isAuthenticated) return;
 
-    let cancelled = false
+    let cancelled = false;
     void fetchProductBySlug(initialProduct.slug)
       .then((fresh) => {
-        if (!cancelled) setProduct(fresh)
+        if (!cancelled) setProduct(fresh);
       })
       .catch((err) => {
         // Keep SSR data if refresh fails (e.g. transient network)
-        if (!(err instanceof ApiClientError)) return
-      })
+        if (!(err instanceof ApiClientError)) return;
+      });
 
     return () => {
-      cancelled = true
-    }
-  }, [authLoading, isAuthenticated, initialProduct.slug])
+      cancelled = true;
+    };
+  }, [authLoading, isAuthenticated, initialProduct.slug]);
 
-  const loginHref = `/auth/login?redirect=${encodeURIComponent(`/products/${product.slug}`)}`
-  const embedUrl = product.videoUrl ? toVideoEmbedUrl(product.videoUrl) : null
+  const embedUrl = product.videoUrl ? toVideoEmbedUrl(product.videoUrl) : null;
   const descriptionParagraphs = product.description
     .split(/\n+/)
     .map((p) => p.trim())
-    .filter(Boolean)
+    .filter(Boolean);
 
   return (
     <div className="mx-auto max-w-container px-6 pb-20 pt-8">
-      <nav className="mb-7 flex flex-wrap items-center gap-2 text-[13px] text-muted" aria-label="Breadcrumb">
+      <nav
+        className="mb-7 flex flex-wrap items-center gap-2 text-[13px] text-muted"
+        aria-label="Breadcrumb"
+      >
         <Link href="/" className="transition hover:text-ink">
           Home
         </Link>
@@ -107,14 +110,20 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
             <div className="h-14 w-14 shrink-0 overflow-hidden rounded-sm border border-card-border bg-canvas">
               {product.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={product.logoUrl} alt="" className="h-full w-full object-cover" />
+                <img
+                  src={product.logoUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
               ) : null}
             </div>
             <div className="min-w-0">
               <h1 className="font-display text-3xl tracking-tight text-ink md:text-4xl">
                 {product.name}
               </h1>
-              <p className="mt-2 text-lg leading-snug text-body-muted">{product.tagline}</p>
+              <p className="mt-2 text-lg leading-snug text-body-muted">
+                {product.tagline}
+              </p>
             </div>
           </div>
 
@@ -154,15 +163,22 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
               )}
             </div>
             <div className="min-w-0">
-              <div className="text-[15px] font-medium text-ink">{product.maker.name}</div>
+              <div className="text-[15px] font-medium text-ink">
+                {product.maker.name}
+              </div>
               <div className="text-[13px] text-muted">Maker</div>
             </div>
           </div>
 
           <section className="mb-9">
-            <h2 className="mb-3 text-xl font-medium tracking-tight text-ink">About</h2>
+            <h2 className="mb-3 text-xl font-medium tracking-tight text-ink">
+              About
+            </h2>
             {descriptionParagraphs.map((paragraph, i) => (
-              <p key={i} className="mb-4 text-[15px] leading-relaxed text-body-muted last:mb-0">
+              <p
+                key={i}
+                className="mb-4 text-[15px] leading-relaxed text-body-muted last:mb-0"
+              >
                 {paragraph}
               </p>
             ))}
@@ -170,7 +186,9 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
 
           {product.galleryUrls.length > 0 ? (
             <section className="mb-9">
-              <h2 className="mb-4 text-xl font-medium tracking-tight text-ink">Gallery</h2>
+              <h2 className="mb-4 text-xl font-medium tracking-tight text-ink">
+                Gallery
+              </h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {product.galleryUrls.map((url, i) => (
                   <div
@@ -191,7 +209,9 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
 
           {product.videoUrl ? (
             <section className="mb-9">
-              <h2 className="mb-4 text-xl font-medium tracking-tight text-ink">Video</h2>
+              <h2 className="mb-4 text-xl font-medium tracking-tight text-ink">
+                Video
+              </h2>
               {embedUrl ? (
                 <div className="aspect-video overflow-hidden rounded-lg bg-soft-stone">
                   <iframe
@@ -223,36 +243,16 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
             </div>
             <div className="mb-5 text-[13px] text-muted">upvotes</div>
 
-            {authLoading ? (
-              <button
-                type="button"
-                disabled
-                className="mb-2 inline-flex w-full cursor-wait items-center justify-center gap-2 rounded-pill bg-primary px-6 py-3 text-sm font-medium text-white opacity-60"
-                aria-busy
-              >
-                ▲ Upvote
-              </button>
-            ) : !isAuthenticated ? (
-              <Link
-                href={loginHref}
-                className="mb-2 inline-flex w-full items-center justify-center gap-2 rounded-pill bg-primary px-6 py-3 text-sm font-medium text-white transition hover:opacity-90"
-              >
-                ▲ Upvote
-              </Link>
-            ) : (
-              <button
-                type="button"
-                disabled
-                className="mb-2 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-pill bg-primary px-6 py-3 text-sm font-medium text-white opacity-60"
-                title={
-                  product.hasVoted
-                    ? 'You already upvoted this product'
-                    : 'Voting will be available soon'
-                }
-              >
-                ▲ {product.hasVoted ? 'Upvoted' : 'Upvote'}
-              </button>
-            )}
+            <VoteButton
+              productId={product.id}
+              productSlug={product.slug}
+              initialHasVoted={product.hasVoted}
+              initialVoteCount={product.voteCount}
+              onVote={(updated) =>
+                setProduct((prev) => ({ ...prev, ...updated }))
+              }
+              variant="detail"
+            />
 
             <a
               href={product.websiteUrl}
@@ -284,7 +284,9 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
               </div>
               <div className="flex justify-between gap-4">
                 <dt className="text-muted">Launched</dt>
-                <dd className="text-right text-ink">{formatLaunchDate(product.launchedAt)}</dd>
+                <dd className="text-right text-ink">
+                  {formatLaunchDate(product.launchedAt)}
+                </dd>
               </div>
               <div className="flex justify-between gap-4">
                 <dt className="text-muted">Maker</dt>
@@ -295,7 +297,7 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
         </aside>
       </div>
     </div>
-  )
+  );
 }
 
 export function ProductDetailSkeleton() {
@@ -341,5 +343,5 @@ export function ProductDetailSkeleton() {
         </aside>
       </div>
     </div>
-  )
+  );
 }

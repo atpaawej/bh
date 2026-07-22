@@ -1,22 +1,34 @@
 // ── Product Routes ──
 
-import { Router } from 'express'
-import { z } from 'zod'
-import { createProductSchema, updateProductSchema } from '../validators/productSchema'
-import { authMiddleware, optionalAuthMiddleware } from '../middleware/auth'
-import { validate } from '../middleware/validate'
-import { voteLimiter } from '../middleware/rateLimiter'
-import { asyncHandler } from '../middleware/asyncHandler'
-import { productService } from '../services/productService'
-import { generateSignedUploadUrl } from '../services/cloudinaryService'
+import { Router } from "express";
+import { z } from "zod";
+import {
+  createProductSchema,
+  updateProductSchema,
+} from "../validators/productSchema";
+import { authMiddleware, optionalAuthMiddleware } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { voteLimiter } from "../middleware/rateLimiter";
+import { asyncHandler } from "../middleware/asyncHandler";
+import { productService } from "../services/productService";
+import { generateSignedUploadUrl } from "../services/cloudinaryService";
 
-const router = Router()
+const router = Router();
 
-router.get('/', asyncHandler(async (req, res) => {
-  const { cursor, category, week } = req.query as any
-  const products = await productService.list({ cursor, category, week })
-  res.json(products)
-}))
+router.get(
+  "/",
+  optionalAuthMiddleware,
+  asyncHandler(async (req, res) => {
+    const { cursor, category, week } = req.query as any;
+    const products = await productService.list({
+      cursor,
+      category,
+      week,
+      userId: req.user?.id,
+    });
+    res.json(products);
+  }),
+);
 
 /**
  * GET /api/products/upload-url
@@ -25,77 +37,96 @@ router.get('/', asyncHandler(async (req, res) => {
  * Query param: folder — one of "logos", "heroes", "gallery"
  */
 router.get(
-  '/upload-url',
+  "/upload-url",
   authMiddleware,
   asyncHandler(async (req, res) => {
     const folder = z
-      .enum(['logos', 'heroes', 'gallery'])
-      .parse(req.query.folder)
-    const signed = generateSignedUploadUrl(folder)
-    res.json(signed)
-  })
-)
+      .enum(["logos", "heroes", "gallery"])
+      .parse(req.query.folder);
+    const signed = generateSignedUploadUrl(folder);
+    res.json(signed);
+  }),
+);
 
-router.get('/:slug', optionalAuthMiddleware, asyncHandler(async (req, res) => {
-  const product = await productService.getBySlug(req.params.slug, req.user?.id)
-  res.json(product)
-}))
+router.get(
+  "/:slug",
+  optionalAuthMiddleware,
+  asyncHandler(async (req, res) => {
+    const product = await productService.getBySlug(
+      req.params.slug,
+      req.user?.id,
+    );
+    res.json(product);
+  }),
+);
 
 router.post(
-  '/',
+  "/",
   authMiddleware,
   validate(createProductSchema),
   asyncHandler(async (req, res) => {
-    const product = await productService.create(req.user!.id, req.body)
-    res.status(201).json(product)
-  })
-)
+    const product = await productService.create(req.user!.id, req.body);
+    res.status(201).json(product);
+  }),
+);
 
 router.patch(
-  '/:slug',
+  "/:slug",
   authMiddleware,
   validate(updateProductSchema),
   asyncHandler(async (req, res) => {
-    const product = await productService.update(req.user!.id, req.params.slug, req.body)
-    res.json(product)
-  })
-)
+    const product = await productService.update(
+      req.user!.id,
+      req.params.slug,
+      req.body,
+    );
+    res.json(product);
+  }),
+);
 
-router.delete('/:slug',
+router.delete(
+  "/:slug",
   authMiddleware,
   asyncHandler(async (req, res) => {
-    await productService.remove(req.user!.id, req.params.slug)
-    res.status(204).send()
-  })
-)
+    await productService.remove(req.user!.id, req.params.slug);
+    res.status(204).send();
+  }),
+);
 
-router.post('/:slug/vote',
+router.post(
+  "/:slug/vote",
   authMiddleware,
   voteLimiter,
   asyncHandler(async (req, res) => {
-    const vote = await productService.vote(req.user!.id, req.params.slug)
-    res.json(vote)
-  })
-)
+    const product = await productService.vote(req.user!.id, req.params.slug);
+    res.json(product);
+  }),
+);
 
-router.delete('/:slug/vote',
+router.delete(
+  "/:slug/vote",
   authMiddleware,
+  voteLimiter,
   asyncHandler(async (req, res) => {
-    await productService.unvote(req.user!.id, req.params.slug)
-    res.status(204).send()
-  })
-)
+    const product = await productService.unvote(req.user!.id, req.params.slug);
+    res.json(product);
+  }),
+);
 
 /**
  * GET /api/products/:slug/edit
  * Returns the product including drafts for the owner (edit page).
  */
-router.get('/:slug/edit',
+router.get(
+  "/:slug/edit",
   authMiddleware,
   asyncHandler(async (req, res) => {
-    const product = await productService.getOwnBySlug(req.params.slug, req.user!.id)
-    res.json(product)
-  })
-)
+    const product = await productService.getOwnBySlug(
+      req.params.slug,
+      req.user!.id,
+    );
+    res.json(product);
+  }),
+);
 
-export default router
+export default router;
