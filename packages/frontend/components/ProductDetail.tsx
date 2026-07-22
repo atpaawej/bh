@@ -7,6 +7,7 @@ import { ApiClientError, fetchProductBySlug } from "../lib/api";
 import { useAuth } from "../lib/auth/AuthContext";
 import { toVideoEmbedUrl } from "../lib/videoEmbed";
 import { VoteButton } from "./VoteButton";
+import { CommentSection } from "./CommentSection";
 
 function formatVotes(count: number): string {
   if (count >= 1000) {
@@ -234,6 +235,8 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
               )}
             </section>
           ) : null}
+
+          <CommentSection productSlug={product.slug} />
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">

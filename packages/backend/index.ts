@@ -8,6 +8,7 @@ import { apiLimiter } from './lib/middleware/rateLimiter'
 import productRoutes from './lib/routes/productRoutes'
 import categoryRoutes from './lib/routes/categoryRoutes'
 import authRoutes from './lib/routes/authRoutes'
+import commentRoutes from './lib/routes/commentRoutes'
 
 const app = express()
 
@@ -36,6 +37,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/categories', categoryRoutes)
+app.use('/api/products/:slug/comments', commentRoutes)
 
 // ── Error handler (MUST be last) ──
 app.use(errorHandler)

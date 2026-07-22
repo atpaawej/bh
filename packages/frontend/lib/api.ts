@@ -1,6 +1,7 @@
 import type {
   AuthSessionResponse,
   CategoryResponse,
+  CommentResponse,
   CreateProductInput,
   MagicLinkResponse,
   OAuthUrlResponse,
@@ -249,4 +250,30 @@ export async function logoutRequest(): Promise<void> {
     // Always drop client JWT even if the network call fails
     setAccessToken(null);
   }
+}
+
+// ── Comments ──
+
+export function fetchComments(slug: string): Promise<CommentResponse[]> {
+  return request(`/products/${encodeURIComponent(slug)}/comments`);
+}
+
+export function createComment(
+  slug: string,
+  data: { body: string; parentId?: string | null },
+): Promise<CommentResponse> {
+  return request(`/products/${encodeURIComponent(slug)}/comments`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteComment(
+  slug: string,
+  commentId: string,
+): Promise<void> {
+  return request(
+    `/products/${encodeURIComponent(slug)}/comments/${commentId}`,
+    { method: "DELETE" },
+  );
 }
