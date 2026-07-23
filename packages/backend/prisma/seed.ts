@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client'
-import { CATEGORIES } from '@bh/shared'
+import { PrismaClient } from "@prisma/client";
+import { CATEGORIES } from "@bh/shared";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
   for (const category of CATEGORIES) {
@@ -16,17 +16,17 @@ async function main() {
         slug: category.slug,
         description: category.description,
       },
-    })
+    });
   }
 
-  console.log(`Seeded ${CATEGORIES.length} categories`)
+  console.log(`Seeded ${CATEGORIES.length} categories`);
 }
 
 main()
   .catch((err) => {
-    console.error(err)
-    process.exit(1)
+    console.error(err);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

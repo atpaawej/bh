@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { useAuth } from "../lib/auth/AuthContext";
 import { fetchOwnProfile, fetchUploadUrl, updateProfile } from "../lib/api";
 import type { UserResponse } from "@bh/shared";
@@ -117,9 +123,7 @@ export function SettingsPageClient() {
 
       setSuccess(true);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to update profile",
-      );
+      setError(err instanceof Error ? err.message : "Failed to update profile");
     } finally {
       setSaving(false);
     }

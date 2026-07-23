@@ -15,8 +15,18 @@ export interface WeekRange {
 }
 
 const MONTH_NAMES = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ] as const;
 
 // ── BH week helpers ────────────────────────────────────────────────────
@@ -40,7 +50,10 @@ export function getWeekRange(date: Date = new Date()): WeekRange {
       date.getUTCFullYear(),
       date.getUTCMonth(),
       date.getUTCDate() - days,
-      0, 0, 0, 0,
+      0,
+      0,
+      0,
+      0,
     ),
   );
   const end = new Date(start);
@@ -74,9 +87,7 @@ export function getCurrentIsoWeek(date: Date = new Date()): string {
   // Move to the Thursday of the same ISO week (Mon-Sun).
   //   Mon: +3, Tue: +2, Wed: +1, Thu: 0, Fri: -1, Sat: -2, Sun: -3
   const thursday = new Date(date);
-  thursday.setUTCDate(
-    date.getUTCDate() + 3 - ((date.getUTCDay() + 6) % 7),
-  );
+  thursday.setUTCDate(date.getUTCDate() + 3 - ((date.getUTCDay() + 6) % 7));
 
   const year = thursday.getUTCFullYear();
 

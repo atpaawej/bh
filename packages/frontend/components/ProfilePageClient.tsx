@@ -62,8 +62,8 @@ export function ProfilePageClient({ initialProfile }: ProfilePageClientProps) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 transition hover:text-ink"
               >
-                <SquareX className="h-4 w-4" strokeWidth={1.5} />
-                @{user.twitterHandle.replace(/^@/, "")}
+                <SquareX className="h-4 w-4" strokeWidth={1.5} />@
+                {user.twitterHandle.replace(/^@/, "")}
               </a>
             ) : null}
 

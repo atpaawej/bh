@@ -1,36 +1,36 @@
-'use client'
+"use client";
 
-import { useEffect, type ReactNode } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
-import { useAuth } from '../../lib/auth/AuthContext'
-import { safeRedirectPath } from '../../lib/auth/redirect'
+import { useEffect, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "../../lib/auth/AuthContext";
+import { safeRedirectPath } from "../../lib/auth/redirect";
 
 interface ProtectedRouteProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 /**
  * Client wrapper that redirects unauthenticated users to /auth/login?redirect=
  */
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth()
-  const router = useRouter()
-  const pathname = usePathname()
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (isLoading) return
+    if (isLoading) return;
     if (!isAuthenticated) {
-      const redirect = encodeURIComponent(safeRedirectPath(pathname || '/'))
-      router.replace(`/auth/login?redirect=${redirect}`)
+      const redirect = encodeURIComponent(safeRedirectPath(pathname || "/"));
+      router.replace(`/auth/login?redirect=${redirect}`);
     }
-  }, [isAuthenticated, isLoading, pathname, router])
+  }, [isAuthenticated, isLoading, pathname, router]);
 
   if (isLoading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <p className="text-sm text-muted">Checking session…</p>
       </div>
-    )
+    );
   }
 
   if (!isAuthenticated) {
@@ -38,8 +38,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       <div className="flex min-h-[40vh] items-center justify-center">
         <p className="text-sm text-muted">Redirecting to sign in…</p>
       </div>
-    )
+    );
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }

@@ -161,15 +161,6 @@ export function fetchProductForEdit(slug: string): Promise<ProductResponse> {
 
 // ── Profiles ──
 
-export interface ProfileResponse {
-  user: UserResponse;
-  products: ProductResponse[];
-}
-
-/**
- * Fetch a public user profile by username.
- * Returns user info + list of their launched products.
- */
 /**
  * Fetch the authenticated user's own profile (includes bio, socials).
  */
@@ -182,18 +173,23 @@ export function fetchProfile(username: string): Promise<ProfileResponse> {
 }
 
 /**
+ * Fetch all products for the authenticated user (includes drafts).
+ */
+export function fetchMyProducts(): Promise<ProductResponse[]> {
+  return request("/users/me/products");
+}
+
+/**
  * Update own profile. Auth required.
  * Only included fields will be updated.
  */
-export function updateProfile(
-  data: {
-    name?: string;
-    bio?: string | null;
-    avatarUrl?: string | null;
-    twitterHandle?: string | null;
-    website?: string | null;
-  },
-): Promise<UserResponse> {
+export function updateProfile(data: {
+  name?: string;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  twitterHandle?: string | null;
+  website?: string | null;
+}): Promise<UserResponse> {
   return request("/users/me", {
     method: "PATCH",
     body: JSON.stringify(data),

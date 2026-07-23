@@ -3,6 +3,6 @@
  * This is an internal module — never import it from outside this package.
  */
 export function formatVoteCount(count: number): string {
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}k`
-  return String(count)
+  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}k`;
+  return String(count);
 }

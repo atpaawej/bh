@@ -1,8 +1,16 @@
 import sanitizeHtml from "sanitize-html";
 import { db } from "../db";
 import { AppError } from "../middleware/errorHandler";
-import { toProductResponse, toUserResponse, productInclude } from "./productMapper";
-import type { ProfileResponse, UserResponse } from "@bh/shared";
+import {
+  toProductResponse,
+  toUserResponse,
+  productInclude,
+} from "./productMapper";
+import type {
+  ProfileResponse,
+  ProductResponse,
+  UserResponse,
+} from "@bh/shared";
 
 type ProductWithCounts = {
   id: string;
@@ -54,6 +62,22 @@ function withCounts(product: ProductWithCounts) {
 }
 
 export const userService = {
+  /**
+   * Get all products for the authenticated user, including drafts.
+   * Ordered by last updated descending.
+   */
+  async getMyProducts(userId: string): Promise<ProductResponse[]> {
+    const products = await db.product.findMany({
+      where: { makerId: userId },
+      include: productInclude,
+      orderBy: { updatedAt: "desc" },
+    });
+
+    return products.map((p) =>
+      toProductResponse(withCounts(p as ProductWithCounts), false),
+    );
+  },
+
   /**
    * Get the authenticated user's own full profile.
    */
@@ -113,7 +137,13 @@ export const userService = {
     if (!user) throw AppError.notFound("User");
 
     const updateData: Record<string, unknown> = {};
-    const allowedFields = ["name", "bio", "avatarUrl", "twitterHandle", "website"] as const;
+    const allowedFields = [
+      "name",
+      "bio",
+      "avatarUrl",
+      "twitterHandle",
+      "website",
+    ] as const;
 
     for (const field of allowedFields) {
       if (field in data) {

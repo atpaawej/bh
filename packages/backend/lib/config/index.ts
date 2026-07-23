@@ -1,13 +1,15 @@
-import path from 'path'
-import { z } from 'zod'
-import dotenv from 'dotenv'
+import path from "path";
+import { z } from "zod";
+import dotenv from "dotenv";
 
 // Load package .env first, then monorepo root (so `turbo dev` / `pnpm dev` from root works)
-dotenv.config({ path: path.resolve(__dirname, '../../.env') })
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') })
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
   PORT: z.coerce.number().default(4000),
 
   // Supabase
@@ -17,7 +19,7 @@ const envSchema = z.object({
 
   // JWT
   JWT_SECRET: z.string().min(32),
-  JWT_EXPIRES_IN: z.string().default('15m'),
+  JWT_EXPIRES_IN: z.string().default("15m"),
   REFRESH_TOKEN_SECRET: z.string().min(32),
 
   // Cloudinary
@@ -26,18 +28,21 @@ const envSchema = z.object({
   CLOUDINARY_API_SECRET: z.string(),
 
   // Frontend
-  FRONTEND_URL: z.string().url().default('http://localhost:3000'),
-})
+  FRONTEND_URL: z.string().url().default("http://localhost:3000"),
+});
 
-const parsed = envSchema.safeParse(process.env)
+const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error('❌ Invalid environment variables:', parsed.error.flatten().fieldErrors)
-  process.exit(1)
+  console.error(
+    "❌ Invalid environment variables:",
+    parsed.error.flatten().fieldErrors,
+  );
+  process.exit(1);
 }
 
 export const config = {
   ...parsed.data,
   port: parsed.data.PORT,
   frontendUrl: parsed.data.FRONTEND_URL,
-}
+};

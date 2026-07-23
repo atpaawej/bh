@@ -156,9 +156,7 @@ describe("getNextWeek", () => {
 describe("formatWeekLabel", () => {
   it("formats a week within same month", () => {
     // 2026-W30 → Fri 17 Jul → Thu 23 Jul
-    expect(formatWeekLabel("2026-W30")).toBe(
-      "Week 30 · Jul 17 – 23, 2026",
-    );
+    expect(formatWeekLabel("2026-W30")).toBe("Week 30 · Jul 17 – 23, 2026");
   });
 
   it("formats a week that crosses months", () => {
@@ -182,8 +180,8 @@ describe("isCurrentWeek", () => {
 
   it("returns false for a non-matching week string", () => {
     // W01 is never the same as W30 (2026-W30 = Mon 20 Jul 2026)
-    expect(isCurrentWeek("2026-W01", new Date(Date.UTC(2026, 6, 20, 12, 0, 0)))).toBe(
-      false,
-    );
+    expect(
+      isCurrentWeek("2026-W01", new Date(Date.UTC(2026, 6, 20, 12, 0, 0))),
+    ).toBe(false);
   });
 });

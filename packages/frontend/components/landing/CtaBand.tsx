@@ -1,4 +1,4 @@
-import { LaunchCta } from '../LaunchCta'
+import { LaunchCta } from "../LaunchCta";
 
 export function CtaBand() {
   return (
@@ -10,15 +10,17 @@ export function CtaBand() {
             Ship something. Get discovered.
           </h2>
           <p className="mx-auto mt-5 max-w-lg text-lg text-body-muted">
-            Join Indian makers who refuse to wait for permission. Launch this week — or schedule
-            for next Friday and build in public until then.
+            Join Indian makers who refuse to wait for permission. Launch this
+            week — or schedule for next Friday and build in public until then.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
             <LaunchCta size="lg" />
-            <span className="text-sm text-ink underline-offset-4">Explore the leaderboard →</span>
+            <span className="text-sm text-ink underline-offset-4">
+              Explore the leaderboard →
+            </span>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

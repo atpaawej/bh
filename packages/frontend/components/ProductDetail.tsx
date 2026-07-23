@@ -145,7 +145,11 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
 
           <div className="mb-9 flex items-center gap-3 border-y border-hairline py-[18px]">
             <Link
-              href={product.maker.username ? `/users/${product.maker.username}` : "#"}
+              href={
+                product.maker.username
+                  ? `/users/${product.maker.username}`
+                  : "#"
+              }
               onClick={(e) => {
                 if (!product.maker.username) e.preventDefault();
               }}
@@ -166,7 +170,11 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
             </Link>
             <div className="min-w-0">
               <Link
-                href={product.maker.username ? `/users/${product.maker.username}` : "#"}
+                href={
+                  product.maker.username
+                    ? `/users/${product.maker.username}`
+                    : "#"
+                }
                 onClick={(e) => {
                   if (!product.maker.username) e.preventDefault();
                 }}

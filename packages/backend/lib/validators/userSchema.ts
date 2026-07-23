@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 /**
  * Schema for updating own profile.
@@ -13,7 +13,7 @@ export const updateProfileSchema = z
     website: z.string().url().max(500).optional().nullable(),
   })
   .refine((data) => Object.keys(data).length > 0, {
-    message: 'At least one field must be provided for update',
-  })
+    message: "At least one field must be provided for update",
+  });
 
-export type UpdateProfileInput = z.infer<typeof updateProfileSchema>
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

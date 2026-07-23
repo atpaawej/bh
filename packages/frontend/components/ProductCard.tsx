@@ -108,7 +108,9 @@ export function ProductCard({
       <div className="flex items-center justify-between gap-3 border-t border-black/[0.06] pt-4">
         <div className="flex min-w-0 items-center gap-2">
           <Link
-            href={product.maker.username ? `/users/${product.maker.username}` : "#"}
+            href={
+              product.maker.username ? `/users/${product.maker.username}` : "#"
+            }
             onClick={(e) => {
               if (!product.maker.username) e.preventDefault();
             }}
@@ -130,7 +132,9 @@ export function ProductCard({
             </div>
           </Link>
           <Link
-            href={product.maker.username ? `/users/${product.maker.username}` : "#"}
+            href={
+              product.maker.username ? `/users/${product.maker.username}` : "#"
+            }
             onClick={(e) => {
               if (!product.maker.username) e.preventDefault();
             }}

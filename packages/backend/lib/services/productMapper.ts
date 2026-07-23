@@ -34,6 +34,7 @@ type ProductRecord = {
   heroImageUrl: string;
   galleryUrls: string[];
   videoUrl: string | null;
+  status: string;
   launchedAt: Date | null;
   scheduledFor: Date | null;
   createdAt: Date;
@@ -96,7 +97,8 @@ export function toProductResponse(
     voteCount: product.voteCount,
     commentCount: product.commentCount,
     hasVoted: hasVotedOverride ?? product.hasVoted ?? false,
-    launchedAt: product.launchedAt?.toISOString() || "",
+    status: product.status as ProductResponse["status"],
+    launchedAt: product.launchedAt?.toISOString() ?? null,
     scheduledFor: product.scheduledFor?.toISOString() || null,
     createdAt: product.createdAt.toISOString(),
   };

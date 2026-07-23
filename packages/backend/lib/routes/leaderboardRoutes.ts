@@ -27,9 +27,7 @@ router.get(
   "/",
   optionalAuthMiddleware,
   asyncHandler(async (req, res) => {
-    const { cursor, category, week } = leaderboardQuerySchema.parse(
-      req.query,
-    );
+    const { cursor, category, week } = leaderboardQuerySchema.parse(req.query);
     const products = await productService.list({
       cursor,
       category,

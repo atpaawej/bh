@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from "next/link";
 
 export function Footer() {
   return (
@@ -10,9 +10,12 @@ export function Footer() {
             <p className="mb-3 font-mono text-xs uppercase tracking-[0.08em] text-coral">
               Launches move fast
             </p>
-            <h3 className="font-display text-3xl tracking-tight">Get the weekly digest</h3>
+            <h3 className="font-display text-3xl tracking-tight">
+              Get the weekly digest
+            </h3>
             <p className="mt-3 text-sm text-white/55">
-              Top products, maker stories, and launch tips — every Friday morning.
+              Top products, maker stories, and launch tips — every Friday
+              morning.
             </p>
           </div>
           <div className="flex w-full max-w-md overflow-hidden rounded-sm border border-white/15">
@@ -46,31 +49,33 @@ export function Footer() {
           <FooterCol
             title="Discover"
             links={[
-              { label: 'Home', href: '/' },
-              { label: 'Leaderboard', href: '/leaderboard' },
-              { label: 'Categories', href: '#' },
+              { label: "Home", href: "/" },
+              { label: "Leaderboard", href: "/leaderboard" },
+              { label: "Categories", href: "#" },
             ]}
           />
           <FooterCol
             title="Launch"
             links={[
-              { label: 'Submit product', href: '/launch' },
-              { label: 'Maker guide', href: '#' },
-              { label: 'Best practices', href: '#' },
+              { label: "Submit product", href: "/launch" },
+              { label: "Maker guide", href: "#" },
+              { label: "Best practices", href: "#" },
             ]}
           />
           <FooterCol
             title="Company"
             links={[
-              { label: 'About', href: '#' },
-              { label: 'Privacy', href: '#' },
-              { label: 'Terms', href: '#' },
+              { label: "About", href: "#" },
+              { label: "Privacy", href: "#" },
+              { label: "Terms", href: "#" },
             ]}
           />
         </div>
 
         <div className="flex flex-col gap-3 border-t border-white/10 py-6 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
-          <span>© {new Date().getFullYear()} BharatHunt. Made with care in India.</span>
+          <span>
+            © {new Date().getFullYear()} BharatHunt. Made with care in India.
+          </span>
           <div className="flex gap-5">
             <Link href="/" className="hover:text-white/70">
               Browse all
@@ -81,15 +86,15 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
 
 function FooterCol({
   title,
   links,
 }: {
-  title: string
-  links: { label: string; href: string }[]
+  title: string;
+  links: { label: string; href: string }[];
 }) {
   return (
     <div>
@@ -97,12 +102,15 @@ function FooterCol({
       <ul className="space-y-2.5">
         {links.map((link) => (
           <li key={link.label}>
-            <Link href={link.href} className="text-sm text-white/50 transition-colors hover:text-white/80">
+            <Link
+              href={link.href}
+              className="text-sm text-white/50 transition-colors hover:text-white/80"
+            >
               {link.label}
             </Link>
           </li>
         ))}
       </ul>
     </div>
-  )
+  );
 }
