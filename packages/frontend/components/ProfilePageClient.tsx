@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ProfileResponse, ProductResponse } from "@bh/shared";
-import { Globe, Twitter } from "lucide-react";
+import { Globe, SquareX } from "lucide-react";
 import { makerInitials } from "../lib/videoEmbed";
 import { ProductCard } from "./ProductCard";
 
@@ -62,7 +62,7 @@ export function ProfilePageClient({ initialProfile }: ProfilePageClientProps) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 transition hover:text-ink"
               >
-                <Twitter className="h-4 w-4" strokeWidth={1.5} />
+                <SquareX className="h-4 w-4" strokeWidth={1.5} />
                 @{user.twitterHandle.replace(/^@/, "")}
               </a>
             ) : null}

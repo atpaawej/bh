@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { ProductResponse } from "@bh/shared";
 import { VoteButton } from "./VoteButton";
@@ -13,18 +14,42 @@ export function ProductCard({
   /** Optional rank position to display as a badge (leaderboard). */
   rank?: number;
 }) {
+  const router = useRouter();
   const [product, setProduct] = useState(initialProduct);
 
   // Sync local state when prop changes (e.g. after feed re-fetch with updated hasVoted)
   useEffect(() => {
     setProduct(initialProduct);
   }, [initialProduct]);
+
   const logoSrc = product.logoUrl || product.heroImageUrl;
 
+  const handleCardClick = useCallback(
+    (e: React.MouseEvent) => {
+      // Don't navigate when clicking on interactive children (links, buttons)
+      if ((e.target as HTMLElement).closest("a, button")) return;
+      router.push(`/products/${product.slug}`);
+    },
+    [router, product.slug],
+  );
+
+  const handleCardKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        router.push(`/products/${product.slug}`);
+      }
+    },
+    [router, product.slug],
+  );
+
   return (
-    <Link
-      href={`/products/${product.slug}`}
-      className="group flex min-h-[280px] flex-col rounded-sm bg-soft-stone p-7 transition-colors hover:bg-[#e6e4de]"
+    <div
+      onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
+      role="link"
+      tabIndex={0}
+      className="group flex min-h-[280px] cursor-pointer flex-col rounded-sm bg-soft-stone p-7 transition-colors hover:bg-[#e6e4de]"
     >
       <div className="mb-5 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -118,7 +143,7 @@ export function ProductCard({
           {product.category.name}
         </span>
       </div>
-    </Link>
+    </div>
   );
 }
 
