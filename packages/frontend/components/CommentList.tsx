@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import type { CommentResponse } from "@bh/shared";
 import { ApiClientError, deleteComment } from "../lib/api";
+import { makerInitials } from "../lib/videoEmbed";
 import { CommentInput } from "./CommentInput";
 
 // ── Helpers ──
@@ -25,13 +26,6 @@ function formatTimestamp(iso: string): string {
     month: "short",
     year: "numeric",
   });
-}
-
-function makerInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
 // ── Avatar ──
@@ -77,7 +71,7 @@ function CommentItem({
   comment: CommentResponse;
   productSlug: string;
   currentUserId: string | null;
-  onDeleted: (id: string) => void;
+  onDeleted: () => void;
   onReplySubmitted?: () => void;
 }) {
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -94,7 +88,7 @@ function CommentItem({
     setDeleteError(null);
     try {
       await deleteComment(productSlug, comment.id);
-      onDeleted(comment.id);
+      onDeleted();
     } catch (err) {
       if (err instanceof ApiClientError) {
         setDeleteError(err.message);
@@ -209,7 +203,7 @@ export function CommentList({
   comments: CommentResponse[];
   productSlug: string;
   currentUserId: string | null;
-  onDeleted: (id: string) => void;
+  onDeleted: () => void;
   onReplySubmitted?: () => void;
 }) {
   if (comments.length === 0) return null;

@@ -195,7 +195,8 @@ export function formatWeekLabel(weekStr: string): string {
 
 /**
  * Check if a week string represents the current week.
+ * Accepts an optional date override for deterministic testing.
  */
-export function isCurrentWeek(weekStr: string): boolean {
-  return weekStr === getCurrentIsoWeek();
+export function isCurrentWeek(weekStr: string, now?: Date): boolean {
+  return weekStr === getCurrentIsoWeek(now);
 }

@@ -11,6 +11,7 @@ export type {
   CreateProductInput,
   VoteResponse,
   CommentResponse,
+  ProfileResponse,
 } from './lib/types'
 export { CATEGORIES } from './lib/constants'
 export type { CategorySlug } from './lib/constants'

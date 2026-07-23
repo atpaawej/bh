@@ -82,23 +82,37 @@ export function ProductCard({
 
       <div className="flex items-center justify-between gap-3 border-t border-black/[0.06] pt-4">
         <div className="flex min-w-0 items-center gap-2">
-          <div className="h-6 w-6 shrink-0 overflow-hidden rounded-full bg-hairline">
-            {product.maker.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.maker.avatarUrl}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <span className="flex h-full w-full items-center justify-center text-[10px] font-medium text-muted">
-                {product.maker.name.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
-          <span className="truncate text-xs text-muted">
+          <Link
+            href={product.maker.username ? `/users/${product.maker.username}` : "#"}
+            onClick={(e) => {
+              if (!product.maker.username) e.preventDefault();
+            }}
+            className="shrink-0"
+          >
+            <div className="h-6 w-6 overflow-hidden rounded-full bg-hairline">
+              {product.maker.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={product.maker.avatarUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-[10px] font-medium text-muted">
+                  {product.maker.name.charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+          </Link>
+          <Link
+            href={product.maker.username ? `/users/${product.maker.username}` : "#"}
+            onClick={(e) => {
+              if (!product.maker.username) e.preventDefault();
+            }}
+            className="truncate text-xs text-muted transition hover:text-ink"
+          >
             {product.maker.name}
-          </span>
+          </Link>
         </div>
         <span className="shrink-0 rounded-full border border-card-border bg-canvas px-2.5 py-1 text-xs text-body-muted">
           {product.category.name}

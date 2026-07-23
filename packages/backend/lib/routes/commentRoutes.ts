@@ -25,6 +25,7 @@ router.get(
 /**
  * POST /api/products/:slug/comments
  * Creates a new comment or reply on a product. Auth required.
+ * Returns 204 on success; the frontend refetches the comment tree.
  */
 router.post(
   "/",
@@ -32,12 +33,12 @@ router.post(
   commentLimiter,
   validate(createCommentSchema),
   asyncHandler(async (req, res) => {
-    const comment = await commentService.create(
+    await commentService.create(
       req.user!.id,
       req.params.slug,
       req.body,
     );
-    res.status(201).json(comment);
+    res.status(204).send();
   }),
 );
 

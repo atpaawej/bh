@@ -2,7 +2,7 @@ import { db } from "../db";
 import { slugify } from "../shared/utils";
 import { resolveWeekRange } from "@bh/shared";
 import { AppError } from "../middleware/errorHandler";
-import { toProductResponse } from "./productMapper";
+import { toProductResponse, productInclude } from "./productMapper";
 import type { ProductResponse, PaginatedResponse } from "@bh/shared";
 
 const PAGE_SIZE = 20;
@@ -14,11 +14,7 @@ interface ListParams {
   userId?: string;
 }
 
-const productInclude = {
-  maker: true,
-  category: true,
-  _count: { select: { votes: true, comments: true } },
-} as const;
+// productInclude is imported from ./productMapper
 
 type ProductWithCounts = {
   id: string;
@@ -43,6 +39,7 @@ type ProductWithCounts = {
     id: string;
     name: string;
     email: string;
+    username: string | null;
     avatarUrl: string | null;
     bio: string | null;
     twitterHandle: string | null;

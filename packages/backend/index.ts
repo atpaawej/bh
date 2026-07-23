@@ -10,6 +10,7 @@ import categoryRoutes from "./lib/routes/categoryRoutes";
 import authRoutes from "./lib/routes/authRoutes";
 import commentRoutes from "./lib/routes/commentRoutes";
 import leaderboardRoutes from "./lib/routes/leaderboardRoutes";
+import userRoutes from "./lib/routes/userRoutes";
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/products/:slug/comments", commentRoutes);
+app.use("/api/users", userRoutes);
 
 // ── Error handler (MUST be last) ──
 app.use(errorHandler);

@@ -27,6 +27,7 @@ export interface CategoryResponse {
 export interface UserResponse {
   id: string
   name: string
+  username: string | null
   avatarUrl: string | null
   bio: string | null
   twitterHandle: string | null
@@ -40,6 +41,7 @@ export interface AuthUserResponse {
   id: string
   email: string
   name: string
+  username: string | null
   avatarUrl: string | null
 }
 
@@ -92,6 +94,13 @@ export interface ProductResponse {
   launchedAt: string
   scheduledFor: string | null
   createdAt: string
+}
+
+// ── Profile ──
+
+export interface ProfileResponse {
+  user: UserResponse
+  products: ProductResponse[]
 }
 
 // ── Vote ──

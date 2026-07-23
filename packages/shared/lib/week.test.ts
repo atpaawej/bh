@@ -177,12 +177,13 @@ describe("isCurrentWeek", () => {
   it("returns true for the current ISO week string", () => {
     const now = new Date(Date.UTC(2026, 6, 20, 12, 0, 0)); // Monday W30
     const week = getCurrentIsoWeek(now);
-    expect(isCurrentWeek(week)).toBe(true);
+    expect(isCurrentWeek(week, now)).toBe(true);
   });
 
-  it("returns false for a different week", () => {
-    expect(isCurrentWeek("2025-W01")).toBe(
-      "2025-W01" === getCurrentIsoWeek(),
+  it("returns false for a non-matching week string", () => {
+    // W01 is never the same as W30 (2026-W30 = Mon 20 Jul 2026)
+    expect(isCurrentWeek("2026-W01", new Date(Date.UTC(2026, 6, 20, 12, 0, 0)))).toBe(
+      false,
     );
   });
 });

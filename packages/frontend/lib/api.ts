@@ -6,7 +6,9 @@ import type {
   MagicLinkResponse,
   OAuthUrlResponse,
   PaginatedResponse,
+  ProfileResponse,
   ProductResponse,
+  UserResponse,
 } from "@bh/shared";
 import { getAccessToken, setAccessToken } from "./auth/tokenStore";
 
@@ -157,6 +159,47 @@ export function fetchProductForEdit(slug: string): Promise<ProductResponse> {
   return request(`/products/${encodeURIComponent(slug)}/edit`);
 }
 
+// ── Profiles ──
+
+export interface ProfileResponse {
+  user: UserResponse;
+  products: ProductResponse[];
+}
+
+/**
+ * Fetch a public user profile by username.
+ * Returns user info + list of their launched products.
+ */
+/**
+ * Fetch the authenticated user's own profile (includes bio, socials).
+ */
+export function fetchOwnProfile(): Promise<UserResponse> {
+  return request("/users/me");
+}
+
+export function fetchProfile(username: string): Promise<ProfileResponse> {
+  return request(`/users/${encodeURIComponent(username)}`);
+}
+
+/**
+ * Update own profile. Auth required.
+ * Only included fields will be updated.
+ */
+export function updateProfile(
+  data: {
+    name?: string;
+    bio?: string | null;
+    avatarUrl?: string | null;
+    twitterHandle?: string | null;
+    website?: string | null;
+  },
+): Promise<UserResponse> {
+  return request("/users/me", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
 // ── Product CRUD ──
 
 export function createProduct(
@@ -281,13 +324,14 @@ export function fetchComments(slug: string): Promise<CommentResponse[]> {
 
 /**
  * Create a new comment or reply on a product. Auth required.
+ * Returns nothing; the caller should refetch the comment tree.
  * @param slug - The product slug
  * @param data - The comment body (plain text) and optional parentId for replies
  */
 export function createComment(
   slug: string,
   data: { body: string; parentId?: string | null },
-): Promise<CommentResponse> {
+): Promise<void> {
   return request(`/products/${encodeURIComponent(slug)}/comments`, {
     method: "POST",
     body: JSON.stringify(data),
