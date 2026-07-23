@@ -71,7 +71,7 @@ function CommentItem({
   comment: CommentResponse;
   productSlug: string;
   currentUserId: string | null;
-  onDeleted: (id: string) => void;
+  onDeleted: () => void;
   onReplySubmitted?: () => void;
 }) {
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -88,7 +88,7 @@ function CommentItem({
     setDeleteError(null);
     try {
       await deleteComment(productSlug, comment.id);
-      onDeleted(comment.id);
+      onDeleted();
     } catch (err) {
       if (err instanceof ApiClientError) {
         setDeleteError(err.message);
@@ -203,7 +203,7 @@ export function CommentList({
   comments: CommentResponse[];
   productSlug: string;
   currentUserId: string | null;
-  onDeleted: (id: string) => void;
+  onDeleted: () => void;
   onReplySubmitted?: () => void;
 }) {
   if (comments.length === 0) return null;

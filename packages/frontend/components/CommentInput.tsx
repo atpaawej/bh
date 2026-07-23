@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import type { CommentResponse } from "@bh/shared";
 import { ApiClientError, createComment } from "../lib/api";
 import { useAuth } from "../lib/auth/AuthContext";
 
@@ -10,6 +9,7 @@ const MAX_COMMENT_LENGTH = 1000;
 /**
  * Textarea + submit form for posting a new comment or reply.
  * Handles auth gate, character count, pending state, and error display.
+ * On success, calls onSubmitted() — the parent should refetch the comment tree.
  */
 export function CommentInput({
   productSlug,
@@ -21,7 +21,7 @@ export function CommentInput({
 }: {
   productSlug: string;
   parentId?: string | null;
-  onSubmitted: (comment: CommentResponse) => void;
+  onSubmitted: () => void;
   onCancel?: () => void;
   placeholder?: string;
   autoFocus?: boolean;
@@ -52,12 +52,12 @@ export function CommentInput({
       setError(null);
 
       try {
-        const comment = await createComment(productSlug, {
+        await createComment(productSlug, {
           body: trimmed,
           parentId: parentId ?? null,
         });
         setBody("");
-        onSubmitted(comment);
+        onSubmitted();
       } catch (err) {
         if (err instanceof ApiClientError) {
           setError(err.message);

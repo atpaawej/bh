@@ -1,13 +1,17 @@
 // ── User Routes ──
 
+import { z } from "zod";
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { asyncHandler } from "../middleware/asyncHandler";
+import { AppError } from "../middleware/errorHandler";
 import { userService } from "../services/userService";
 import { updateProfileSchema } from "../validators/userSchema";
 
 const router = Router();
+
+const usernameParamSchema = z.string().min(1).max(100).regex(/^[a-z0-9-]+$/);
 
 /**
  * GET /api/users/me
@@ -31,7 +35,11 @@ router.get(
 router.get(
   "/:username",
   asyncHandler(async (req, res) => {
-    const profile = await userService.getProfile(req.params.username);
+    const result = usernameParamSchema.safeParse(req.params.username);
+    if (!result.success) {
+      throw AppError.validation("Invalid username");
+    }
+    const profile = await userService.getProfile(result.data);
     res.json(profile);
   }),
 );
@@ -46,7 +54,8 @@ router.patch(
   authMiddleware,
   validate(updateProfileSchema),
   asyncHandler(async (req, res) => {
-    const user = await userService.updateProfile(req.user!.id, req.body);
+    await userService.updateProfile(req.user!.id, req.body);
+    const user = await userService.getOwnProfile(req.user!.id);
     res.json(user);
   }),
 );

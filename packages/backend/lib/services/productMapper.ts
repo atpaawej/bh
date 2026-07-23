@@ -44,6 +44,15 @@ type ProductRecord = {
   hasVoted?: boolean;
 };
 
+/**
+ * Reusable Prisma include for product queries that need maker + category + counts.
+ */
+export const productInclude = {
+  maker: true,
+  category: true,
+  _count: { select: { votes: true, comments: true } },
+} as const;
+
 export function toUserResponse(maker: MakerRecord): UserResponse {
   return {
     id: maker.id,

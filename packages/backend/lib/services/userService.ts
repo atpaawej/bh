@@ -1,14 +1,8 @@
 import sanitizeHtml from "sanitize-html";
 import { db } from "../db";
 import { AppError } from "../middleware/errorHandler";
-import { toProductResponse, toUserResponse } from "./productMapper";
+import { toProductResponse, toUserResponse, productInclude } from "./productMapper";
 import type { ProfileResponse, UserResponse } from "@bh/shared";
-
-const productInclude = {
-  maker: true,
-  category: true,
-  _count: { select: { votes: true, comments: true } },
-} as const;
 
 type ProductWithCounts = {
   id: string;
@@ -114,7 +108,7 @@ export const userService = {
       twitterHandle?: string | null;
       website?: string | null;
     },
-  ): Promise<UserResponse> {
+  ): Promise<void> {
     const user = await db.user.findUnique({ where: { id: userId } });
     if (!user) throw AppError.notFound("User");
 
@@ -137,11 +131,9 @@ export const userService = {
       }
     }
 
-    const updated = await db.user.update({
+    await db.user.update({
       where: { id: userId },
       data: updateData,
     });
-
-    return toUserResponse(updated);
   },
 };

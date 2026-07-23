@@ -324,13 +324,14 @@ export function fetchComments(slug: string): Promise<CommentResponse[]> {
 
 /**
  * Create a new comment or reply on a product. Auth required.
+ * Returns nothing; the caller should refetch the comment tree.
  * @param slug - The product slug
  * @param data - The comment body (plain text) and optional parentId for replies
  */
 export function createComment(
   slug: string,
   data: { body: string; parentId?: string | null },
-): Promise<CommentResponse> {
+): Promise<void> {
   return request(`/products/${encodeURIComponent(slug)}/comments`, {
     method: "POST",
     body: JSON.stringify(data),

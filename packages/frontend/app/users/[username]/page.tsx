@@ -12,7 +12,9 @@ const loadProfile = cache(async (username: string) => {
   try {
     return await fetchProfile(username);
   } catch (err) {
-    if (err instanceof ApiClientError && err.status === 404) {
+    // Treat any client error (401, 404, etc.) as "not found" for profile pages,
+    // since a non-existent or inaccessible user should show the 404 page.
+    if (err instanceof ApiClientError) {
       return null;
     }
     throw err;

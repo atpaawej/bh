@@ -84,7 +84,7 @@ export const commentService = {
     userId: string,
     slug: string,
     data: { body: string; parentId?: string | null },
-  ): Promise<CommentResponse> {
+  ): Promise<void> {
     const productId = await resolveProductIdOrThrow(slug);
 
     const body = sanitizeHtml(data.body, {
@@ -109,7 +109,7 @@ export const commentService = {
       }
     }
 
-    const comment = await db.comment.create({
+    await db.comment.create({
       data: {
         body,
         userId,
@@ -118,8 +118,6 @@ export const commentService = {
       },
       include: commentInclude,
     });
-
-    return toCommentResponse(comment);
   },
 
   /**
