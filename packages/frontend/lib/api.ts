@@ -7,6 +7,7 @@ import type {
   OAuthUrlResponse,
   PaginatedResponse,
   ProductResponse,
+  UserResponse,
 } from "@bh/shared";
 import { getAccessToken, setAccessToken } from "./auth/tokenStore";
 
@@ -155,6 +156,47 @@ export function unvoteForProduct(slug: string): Promise<ProductResponse> {
 /** Fetches a product for editing — returns drafts for the owner. */
 export function fetchProductForEdit(slug: string): Promise<ProductResponse> {
   return request(`/products/${encodeURIComponent(slug)}/edit`);
+}
+
+// ── Profiles ──
+
+export interface ProfileResponse {
+  user: UserResponse;
+  products: ProductResponse[];
+}
+
+/**
+ * Fetch a public user profile by username.
+ * Returns user info + list of their launched products.
+ */
+/**
+ * Fetch the authenticated user's own profile (includes bio, socials).
+ */
+export function fetchOwnProfile(): Promise<UserResponse> {
+  return request("/users/me");
+}
+
+export function fetchProfile(username: string): Promise<ProfileResponse> {
+  return request(`/users/${encodeURIComponent(username)}`);
+}
+
+/**
+ * Update own profile. Auth required.
+ * Only included fields will be updated.
+ */
+export function updateProfile(
+  data: {
+    name?: string;
+    bio?: string | null;
+    avatarUrl?: string | null;
+    twitterHandle?: string | null;
+    website?: string | null;
+  },
+): Promise<UserResponse> {
+  return request("/users/me", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
 }
 
 // ── Product CRUD ──

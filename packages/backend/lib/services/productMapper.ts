@@ -7,6 +7,7 @@ import type {
 type MakerRecord = {
   id: string;
   name: string;
+  username: string | null;
   avatarUrl: string | null;
   bio: string | null;
   twitterHandle: string | null;
@@ -47,6 +48,7 @@ export function toUserResponse(maker: MakerRecord): UserResponse {
   return {
     id: maker.id,
     name: maker.name,
+    username: maker.username,
     avatarUrl: maker.avatarUrl,
     bio: maker.bio,
     twitterHandle: maker.twitterHandle,

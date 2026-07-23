@@ -151,22 +151,36 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
           ) : null}
 
           <div className="mb-9 flex items-center gap-3 border-y border-hairline py-[18px]">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-deep-green text-[13px] font-medium text-white">
-              {product.maker.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={product.maker.avatarUrl}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                makerInitials(product.maker.name)
-              )}
-            </div>
-            <div className="min-w-0">
-              <div className="text-[15px] font-medium text-ink">
-                {product.maker.name}
+            <Link
+              href={product.maker.username ? `/users/${product.maker.username}` : "#"}
+              onClick={(e) => {
+                if (!product.maker.username) e.preventDefault();
+              }}
+              className="shrink-0"
+            >
+              <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-deep-green text-[13px] font-medium text-white">
+                {product.maker.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={product.maker.avatarUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  makerInitials(product.maker.name)
+                )}
               </div>
+            </Link>
+            <div className="min-w-0">
+              <Link
+                href={product.maker.username ? `/users/${product.maker.username}` : "#"}
+                onClick={(e) => {
+                  if (!product.maker.username) e.preventDefault();
+                }}
+                className="text-[15px] font-medium text-ink transition hover:text-deep-green"
+              >
+                {product.maker.name}
+              </Link>
               <div className="text-[13px] text-muted">Maker</div>
             </div>
           </div>

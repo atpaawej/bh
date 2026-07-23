@@ -43,6 +43,7 @@ type ProductWithCounts = {
     id: string;
     name: string;
     email: string;
+    username: string | null;
     avatarUrl: string | null;
     bio: string | null;
     twitterHandle: string | null;

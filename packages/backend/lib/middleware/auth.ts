@@ -7,6 +7,7 @@ export interface AuthUser {
   id: string
   email: string
   name: string
+  username: string | null
   avatarUrl: string | null
 }
 
@@ -33,6 +34,7 @@ export const authMiddleware = (req: Request, _res: Response, next: NextFunction)
       id: payload.sub,
       email: payload.email,
       name: payload.name,
+      username: payload.username ?? null,
       avatarUrl: payload.avatarUrl,
     }
     next()
@@ -59,6 +61,7 @@ export const optionalAuthMiddleware = (req: Request, _res: Response, next: NextF
       id: payload.sub,
       email: payload.email,
       name: payload.name,
+      username: payload.username ?? null,
       avatarUrl: payload.avatarUrl,
     }
   } catch {

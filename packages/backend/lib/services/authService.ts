@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import type { Prisma } from '@prisma/client'
+import { slugify } from '../shared/utils'
 import { db } from '../db'
 import { config } from '../config'
 import { AppError } from '../middleware/errorHandler'
@@ -101,6 +102,20 @@ async function exchangePkceCode(
   throw AppError.unauthorized('Invalid or expired auth code')
 }
 
+async function generateUsername(name: string, email: string): Promise<string> {
+  const base = slugify(name) || email.split('@')[0] || 'maker'
+  // Try base first; append counter if taken
+  const existing = await db.user.findUnique({ where: { username: base } })
+  if (!existing) return base
+  for (let i = 1; i < 100; i++) {
+    const candidate = `${base}-${i}`
+    const taken = await db.user.findUnique({ where: { username: candidate } })
+    if (!taken) return candidate
+  }
+  // Fallback — extremely unlikely
+  return `${base}-${Date.now()}`
+}
+
 function displayName(user: SupabaseUserLike, email: string): string {
   const meta = user.user_metadata ?? {}
   const fromMeta =
@@ -125,12 +140,14 @@ function toAuthUser(user: {
   id: string
   email: string
   name: string
+  username: string | null
   avatarUrl: string | null
 }): AuthUser {
   return {
     id: user.id,
     email: user.email,
     name: user.name,
+    username: user.username,
     avatarUrl: user.avatarUrl,
   }
 }
@@ -140,6 +157,7 @@ function signAccessToken(user: AuthUser): string {
     {
       email: user.email,
       name: user.name,
+      username: user.username,
       avatarUrl: user.avatarUrl,
     },
     config.JWT_SECRET,
@@ -170,8 +188,9 @@ async function upsertUserFromSupabase(supabaseUser: SupabaseUserLike) {
 
   const existing = await db.user.findUnique({ where: { email } })
   if (!existing) {
+    const username = await generateUsername(name, email)
     return db.user.create({
-      data: { email, name, avatarUrl },
+      data: { email, name, username, avatarUrl },
     })
   }
 
@@ -190,6 +209,7 @@ async function issueSession(user: {
   id: string
   email: string
   name: string
+  username: string | null
   avatarUrl: string | null
 }): Promise<AuthSession> {
   const authUser = toAuthUser(user)

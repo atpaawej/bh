@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
-import { User } from 'lucide-react'
+import Link from 'next/link'
+import { User, Settings } from 'lucide-react'
 import { useAuth } from '../lib/auth/AuthContext'
 
 function DefaultAvatarIcon() {
@@ -78,6 +79,24 @@ export function UserMenu() {
             <p className="truncate text-sm font-medium text-ink">{user.name}</p>
             <p className="truncate text-xs text-muted">{user.email}</p>
           </div>
+          {user.username ? (
+            <Link
+              href={`/users/${user.username}`}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-soft-stone"
+            >
+              <User className="h-4 w-4" strokeWidth={1.5} />
+              Profile
+            </Link>
+          ) : null}
+          <Link
+            href="/settings"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-soft-stone"
+          >
+            <Settings className="h-4 w-4" strokeWidth={1.5} />
+            Settings
+          </Link>
           <button
             type="button"
             role="menuitem"
