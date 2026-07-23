@@ -161,11 +161,6 @@ export function fetchProductForEdit(slug: string): Promise<ProductResponse> {
 
 // ── Profiles ──
 
-export interface ProfileResponse {
-  user: UserResponse;
-  products: ProductResponse[];
-}
-
 /**
  * Fetch a public user profile by username.
  * Returns user info + list of their launched products.
@@ -179,6 +174,13 @@ export function fetchOwnProfile(): Promise<UserResponse> {
 
 export function fetchProfile(username: string): Promise<ProfileResponse> {
   return request(`/users/${encodeURIComponent(username)}`);
+}
+
+/**
+ * Fetch all products for the authenticated user (includes drafts).
+ */
+export function fetchMyProducts(): Promise<ProductResponse[]> {
+  return request("/users/me/products");
 }
 
 /**

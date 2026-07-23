@@ -27,6 +27,19 @@ router.get(
 );
 
 /**
+ * GET /api/users/me/products
+ * Returns all products (including drafts) for the authenticated user.
+ */
+router.get(
+  "/me/products",
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    const products = await userService.getMyProducts(req.user!.id);
+    res.json(products);
+  }),
+);
+
+/**
  * GET /api/users/:username
  * Public profile with user info + list of launched products.
  * Throws 404 for non-existent usernames.

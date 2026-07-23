@@ -40,6 +40,12 @@ export function Nav() {
             <span className="h-9 w-9 animate-pulse rounded-full bg-soft-stone" aria-hidden />
           ) : isAuthenticated ? (
             <>
+              <Link
+                href="/dashboard"
+                className="text-sm font-medium text-muted transition hover:text-ink"
+              >
+                Dashboard
+              </Link>
               <LaunchCta labelLoggedIn="Launch" labelLoggedOut="Launch" size="sm" />
               <UserMenu />
             </>

@@ -91,6 +91,7 @@ export interface ProductResponse {
   voteCount: number
   commentCount: number
   hasVoted: boolean
+  status: 'draft' | 'submitted' | 'featured'
   launchedAt: string
   scheduledFor: string | null
   createdAt: string
