@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ProfileResponse, ProductResponse } from "@bh/shared";
 import { Globe, Twitter } from "lucide-react";
+import { makerInitials } from "../lib/videoEmbed";
 import { ProductCard } from "./ProductCard";
 
 function formatDate(iso: string): string {
@@ -13,13 +14,6 @@ function formatDate(iso: string): string {
     year: "numeric",
     timeZone: "UTC",
   });
-}
-
-function makerInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
 type ProfilePageClientProps = {

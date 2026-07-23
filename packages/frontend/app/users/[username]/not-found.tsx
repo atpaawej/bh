@@ -8,8 +8,7 @@ export default function UserNotFound() {
         User not found
       </h1>
       <p className="mt-4 max-w-md text-body-muted">
-        This user doesn&apos;t exist or hasn&apos;t launched any products yet. Head back to
-        discover what India is shipping.
+        This user doesn&apos;t exist. Head back to discover what India is shipping.
       </p>
       <Link
         href="/"

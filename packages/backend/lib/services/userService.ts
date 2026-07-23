@@ -1,3 +1,4 @@
+import sanitizeHtml from "sanitize-html";
 import { db } from "../db";
 import { AppError } from "../middleware/errorHandler";
 import { toProductResponse, toUserResponse } from "./productMapper";
@@ -69,7 +70,6 @@ export const userService = {
   },
 
   /**
-  /**
    * Get a public profile by username. Returns the user info and all their
    * public (submitted/featured) launched products, ordered by launch date desc.
    * Throws 404 if the username doesn't exist.
@@ -124,6 +124,16 @@ export const userService = {
     for (const field of allowedFields) {
       if (field in data) {
         updateData[field] = data[field];
+      }
+    }
+
+    // Sanitize text fields to prevent XSS
+    for (const field of ["name", "bio", "twitterHandle"] as const) {
+      if (typeof updateData[field] === "string") {
+        updateData[field] = sanitizeHtml(updateData[field] as string, {
+          allowedTags: [],
+          allowedAttributes: {},
+        });
       }
     }
 

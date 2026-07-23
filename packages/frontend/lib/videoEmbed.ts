@@ -1,4 +1,16 @@
 /**
+ * Extract initials from a name for avatar fallback display.
+ * Handles single names (returns first 2 chars), multi-word names (first + last initial),
+ * and empty strings (returns "?").
+ */
+export function makerInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+}
+
+/**
  * Convert a public video URL into an embeddable iframe src when possible.
  * Returns null for unknown hosts so callers can fall back to an external link.
  */

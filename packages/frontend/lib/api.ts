@@ -6,6 +6,7 @@ import type {
   MagicLinkResponse,
   OAuthUrlResponse,
   PaginatedResponse,
+  ProfileResponse,
   ProductResponse,
   UserResponse,
 } from "@bh/shared";
