@@ -11,6 +11,7 @@ import authRoutes from "./lib/routes/authRoutes";
 import commentRoutes from "./lib/routes/commentRoutes";
 import leaderboardRoutes from "./lib/routes/leaderboardRoutes";
 import userRoutes from "./lib/routes/userRoutes";
+import cronRoutes from "./lib/routes/cronRoutes";
 
 const app = express();
 
@@ -44,6 +45,9 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/products/:slug/comments", commentRoutes);
 app.use("/api/users", userRoutes);
+
+// ── Internal cron / scheduled tasks ──
+app.use("/api/cron", cronRoutes);
 
 // ── Error handler (MUST be last) ──
 app.use(errorHandler);

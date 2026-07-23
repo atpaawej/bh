@@ -29,6 +29,9 @@ const envSchema = z.object({
 
   // Frontend
   FRONTEND_URL: z.string().url().default("http://localhost:3000"),
+
+  // Cron
+  CRON_SECRET: z.string().min(16),
 });
 
 const parsed = envSchema.safeParse(process.env);

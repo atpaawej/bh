@@ -36,6 +36,7 @@ describe("authMiddleware", () => {
       id: "user-1",
       email: "asha@example.com",
       name: "Asha",
+      username: null,
       avatarUrl: null,
     });
     expect(next).toHaveBeenCalledWith();
@@ -124,6 +125,7 @@ describe("optionalAuthMiddleware", () => {
       id: "user-1",
       email: "asha@example.com",
       name: "Asha",
+      username: null,
       avatarUrl: "https://x.com/a.png",
     });
     expect(next).toHaveBeenCalled();

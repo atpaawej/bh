@@ -47,6 +47,7 @@ const dbUser = {
   id: "user-1",
   email: "asha@example.com",
   name: "Asha",
+  username: "asha",
   avatarUrl: "https://example.com/a.jpg",
   bio: null,
   twitterHandle: null,
@@ -199,6 +200,7 @@ describe("authService", () => {
         data: {
           email: "asha@example.com",
           name: "Asha",
+          username: "asha",
           avatarUrl: "https://example.com/a.jpg",
         },
       });
@@ -206,6 +208,7 @@ describe("authService", () => {
         id: "user-1",
         email: "asha@example.com",
         name: "Asha",
+        username: "asha",
         avatarUrl: "https://example.com/a.jpg",
       });
       expect(session.accessToken).toBeTruthy();

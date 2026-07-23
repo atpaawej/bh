@@ -317,11 +317,25 @@ Base URL: `http://localhost:4000/api`
 | `GET` | `/leaderboard` | Current week's products ranked by votes (public) |
 | `GET` | `/leaderboard?week=2026-W30` | Specific week's ranked products (public) |
 
+### Cron / Scheduled Tasks
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/cron/publish-week` | Publish all draft products scheduled for the current week (gated by `X-Cron-Secret`) |
+
 ### Health
 
 | Method | Path | Description |
 |---|---|---|
 | `GET` | `/health` | Health check |
+
+---
+
+## 🚀 Deployment
+
+See [docs/deploy.md](./docs/deploy.md) for:
+- Building and deploying the backend to Cloud Run
+- Cloud Scheduler cron job setup (weekly product publishing)
 
 ---
 
