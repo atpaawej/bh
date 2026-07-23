@@ -1,8 +1,16 @@
 import sanitizeHtml from "sanitize-html";
 import { db } from "../db";
 import { AppError } from "../middleware/errorHandler";
-import { toProductResponse, toUserResponse, productInclude } from "./productMapper";
-import type { ProfileResponse, ProductResponse, UserResponse } from "@bh/shared";
+import {
+  toProductResponse,
+  toUserResponse,
+  productInclude,
+} from "./productMapper";
+import type {
+  ProfileResponse,
+  ProductResponse,
+  UserResponse,
+} from "@bh/shared";
 
 type ProductWithCounts = {
   id: string;
@@ -129,7 +137,13 @@ export const userService = {
     if (!user) throw AppError.notFound("User");
 
     const updateData: Record<string, unknown> = {};
-    const allowedFields = ["name", "bio", "avatarUrl", "twitterHandle", "website"] as const;
+    const allowedFields = [
+      "name",
+      "bio",
+      "avatarUrl",
+      "twitterHandle",
+      "website",
+    ] as const;
 
     for (const field of allowedFields) {
       if (field in data) {

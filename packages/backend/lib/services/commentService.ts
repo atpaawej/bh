@@ -105,7 +105,9 @@ export const commentService = {
         throw AppError.validation("Replies can only be one level deep");
       }
       if (parent.productId !== productId) {
-        throw AppError.validation("Parent comment does not belong to this product");
+        throw AppError.validation(
+          "Parent comment does not belong to this product",
+        );
       }
     }
 

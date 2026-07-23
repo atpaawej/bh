@@ -1,63 +1,77 @@
-'use client'
+"use client";
 
-import { Suspense, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuth } from '../../../lib/auth/AuthContext'
-import { safeRedirectPath } from '../../../lib/auth/redirect'
-import { ApiClientError } from '../../../lib/api'
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "../../../lib/auth/AuthContext";
+import { safeRedirectPath } from "../../../lib/auth/redirect";
+import { ApiClientError } from "../../../lib/api";
 
 /**
  * OAuth / magic-link landing page.
  * Reads `code`, `token_hash`, or hash-fragment `access_token` and completes login via the backend.
  */
 function CallbackHandler() {
-  const { completeFromCallback } = useAuth()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [error, setError] = useState<string | null>(null)
+  const { completeFromCallback } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
 
     async function run() {
       try {
-        const code = searchParams.get('code')
-        const tokenHash = searchParams.get('token_hash') ?? searchParams.get('tokenHash')
-        const type = searchParams.get('type')
+        const code = searchParams.get("code");
+        const tokenHash =
+          searchParams.get("token_hash") ?? searchParams.get("tokenHash");
+        const type = searchParams.get("type");
 
         // Implicit-flow / some magic-link redirects put tokens in the hash
-        const hash = typeof window !== 'undefined' ? window.location.hash.replace(/^#/, '') : ''
-        const hashParams = new URLSearchParams(hash)
-        const accessToken = hashParams.get('access_token')
+        const hash =
+          typeof window !== "undefined"
+            ? window.location.hash.replace(/^#/, "")
+            : "";
+        const hashParams = new URLSearchParams(hash);
+        const accessToken = hashParams.get("access_token");
 
         if (!code && !tokenHash && !accessToken) {
-          throw new Error('No auth credentials found in callback URL')
+          throw new Error("No auth credentials found in callback URL");
         }
 
-        const redirect = safeRedirectPath(sessionStorage.getItem('bh_auth_redirect'))
-        sessionStorage.removeItem('bh_auth_redirect')
+        const redirect = safeRedirectPath(
+          sessionStorage.getItem("bh_auth_redirect"),
+        );
+        sessionStorage.removeItem("bh_auth_redirect");
 
-        await completeFromCallback({ code, accessToken, tokenHash, type })
+        await completeFromCallback({ code, accessToken, tokenHash, type });
 
         if (!cancelled) {
           // Clean hash tokens from the URL bar before navigating
           if (hash) {
-            window.history.replaceState(null, '', window.location.pathname + window.location.search)
+            window.history.replaceState(
+              null,
+              "",
+              window.location.pathname + window.location.search,
+            );
           }
-          router.replace(redirect)
+          router.replace(redirect);
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof ApiClientError ? err.message : 'Sign-in failed. Please try again.')
+          setError(
+            err instanceof ApiClientError
+              ? err.message
+              : "Sign-in failed. Please try again.",
+          );
         }
       }
     }
 
-    void run()
+    void run();
     return () => {
-      cancelled = true
-    }
-  }, [completeFromCallback, router, searchParams])
+      cancelled = true;
+    };
+  }, [completeFromCallback, router, searchParams]);
 
   if (error) {
     return (
@@ -72,14 +86,14 @@ function CallbackHandler() {
           Back to sign in
         </a>
       </div>
-    )
+    );
   }
 
   return (
     <div className="flex min-h-[40vh] items-center justify-center">
       <p className="text-sm text-muted">Completing sign in…</p>
     </div>
-  )
+  );
 }
 
 export default function AuthCallbackPage() {
@@ -93,5 +107,5 @@ export default function AuthCallbackPage() {
     >
       <CallbackHandler />
     </Suspense>
-  )
+  );
 }

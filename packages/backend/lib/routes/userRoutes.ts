@@ -11,7 +11,11 @@ import { updateProfileSchema } from "../validators/userSchema";
 
 const router = Router();
 
-const usernameParamSchema = z.string().min(1).max(100).regex(/^[a-z0-9-]+$/);
+const usernameParamSchema = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(/^[a-z0-9-]+$/);
 
 /**
  * GET /api/users/me
@@ -21,7 +25,8 @@ router.get(
   "/me",
   authMiddleware,
   asyncHandler(async (req, res) => {
-    const user = await userService.getOwnProfile(req.user!.id);
+    if (!req.user) throw AppError.unauthorized();
+    const user = await userService.getOwnProfile(req.user.id);
     res.json(user);
   }),
 );
@@ -34,7 +39,8 @@ router.get(
   "/me/products",
   authMiddleware,
   asyncHandler(async (req, res) => {
-    const products = await userService.getMyProducts(req.user!.id);
+    if (!req.user) throw AppError.unauthorized();
+    const products = await userService.getMyProducts(req.user.id);
     res.json(products);
   }),
 );
@@ -67,8 +73,9 @@ router.patch(
   authMiddleware,
   validate(updateProfileSchema),
   asyncHandler(async (req, res) => {
-    await userService.updateProfile(req.user!.id, req.body);
-    const user = await userService.getOwnProfile(req.user!.id);
+    if (!req.user) throw AppError.unauthorized();
+    await userService.updateProfile(req.user.id, req.body);
+    const user = await userService.getOwnProfile(req.user.id);
     res.json(user);
   }),
 );

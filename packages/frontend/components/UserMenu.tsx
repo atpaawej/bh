@@ -1,50 +1,50 @@
-'use client'
+"use client";
 
-import { useEffect, useId, useRef, useState } from 'react'
-import Link from 'next/link'
-import { User, Settings } from 'lucide-react'
-import { useAuth } from '../lib/auth/AuthContext'
+import { useEffect, useId, useRef, useState } from "react";
+import Link from "next/link";
+import { User, Settings } from "lucide-react";
+import { useAuth } from "../lib/auth/AuthContext";
 
 function DefaultAvatarIcon() {
-  return <User className="h-5 w-5 text-muted" strokeWidth={1.75} aria-hidden />
+  return <User className="h-5 w-5 text-muted" strokeWidth={1.75} aria-hidden />;
 }
 
 export function UserMenu() {
-  const { user, logout } = useAuth()
-  const [open, setOpen] = useState(false)
-  const [avatarFailed, setAvatarFailed] = useState(false)
-  const rootRef = useRef<HTMLDivElement>(null)
-  const menuId = useId()
+  const { user, logout } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
 
   // Reset broken-image state when the URL changes (e.g. re-login)
   useEffect(() => {
-    setAvatarFailed(false)
-  }, [user?.avatarUrl])
+    setAvatarFailed(false);
+  }, [user?.avatarUrl]);
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
 
     function onPointerDown(e: MouseEvent) {
       if (!rootRef.current?.contains(e.target as Node)) {
-        setOpen(false)
+        setOpen(false);
       }
     }
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === "Escape") setOpen(false);
     }
 
-    document.addEventListener('mousedown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
     return () => {
-      document.removeEventListener('mousedown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [open])
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
-  if (!user) return null
+  if (!user) return null;
 
-  const showImage = Boolean(user.avatarUrl) && !avatarFailed
+  const showImage = Boolean(user.avatarUrl) && !avatarFailed;
 
   return (
     <div ref={rootRef} className="relative">
@@ -101,8 +101,8 @@ export function UserMenu() {
             type="button"
             role="menuitem"
             onClick={() => {
-              setOpen(false)
-              void logout()
+              setOpen(false);
+              void logout();
             }}
             className="block w-full px-4 py-2.5 text-left text-sm font-medium text-error transition hover:bg-error/5"
           >
@@ -111,5 +111,5 @@ export function UserMenu() {
         </div>
       )}
     </div>
-  )
+  );
 }

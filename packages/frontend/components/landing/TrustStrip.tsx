@@ -1,4 +1,13 @@
-const NAMES = ['Zerodha', 'Razorpay', 'CRED', 'Groww', 'Meesho', 'BharatPe', 'PhonePe', 'Postman']
+const NAMES = [
+  "Zerodha",
+  "Razorpay",
+  "CRED",
+  "Groww",
+  "Meesho",
+  "BharatPe",
+  "PhonePe",
+  "Postman",
+];
 
 export function TrustStrip() {
   return (
@@ -17,5 +26,5 @@ export function TrustStrip() {
         </div>
       </div>
     </section>
-  )
+  );
 }

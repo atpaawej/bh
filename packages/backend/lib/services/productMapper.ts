@@ -97,8 +97,8 @@ export function toProductResponse(
     voteCount: product.voteCount,
     commentCount: product.commentCount,
     hasVoted: hasVotedOverride ?? product.hasVoted ?? false,
-    status: product.status as ProductResponse['status'],
-    launchedAt: product.launchedAt?.toISOString() || "",
+    status: product.status as ProductResponse["status"],
+    launchedAt: product.launchedAt?.toISOString() ?? null,
     scheduledFor: product.scheduledFor?.toISOString() || null,
     createdAt: product.createdAt.toISOString(),
   };

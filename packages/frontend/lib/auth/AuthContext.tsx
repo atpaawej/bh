@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   createContext,
@@ -8,8 +8,8 @@ import {
   useMemo,
   useState,
   type ReactNode,
-} from 'react'
-import type { AuthSessionResponse, AuthUserResponse } from '@bh/shared'
+} from "react";
+import type { AuthSessionResponse, AuthUserResponse } from "@bh/shared";
 import {
   completeAuthWithAccessToken,
   completeAuthWithCode,
@@ -18,120 +18,125 @@ import {
   refreshSession,
   requestMagicLink,
   startOAuth,
-} from '../api'
-import { setAccessToken } from './tokenStore'
+} from "../api";
+import { setAccessToken } from "./tokenStore";
 
 interface AuthContextValue {
-  user: AuthUserResponse | null
-  accessToken: string | null
-  isLoading: boolean
-  isAuthenticated: boolean
-  loginWithGoogle: () => Promise<void>
-  loginWithGitHub: () => Promise<void>
-  sendMagicLink: (email: string) => Promise<void>
+  user: AuthUserResponse | null;
+  accessToken: string | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  loginWithGoogle: () => Promise<void>;
+  loginWithGitHub: () => Promise<void>;
+  sendMagicLink: (email: string) => Promise<void>;
   completeFromCallback: (params: {
-    code?: string | null
-    accessToken?: string | null
-    tokenHash?: string | null
-    type?: string | null
-  }) => Promise<void>
-  logout: () => Promise<void>
+    code?: string | null;
+    accessToken?: string | null;
+    tokenHash?: string | null;
+    type?: string | null;
+  }) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null)
+const AuthContext = createContext<AuthContextValue | null>(null);
 
-function applySession(session: AuthSessionResponse, setUser: (u: AuthUserResponse) => void) {
-  setAccessToken(session.accessToken)
-  setUser(session.user)
+function applySession(
+  session: AuthSessionResponse,
+  setUser: (u: AuthUserResponse) => void,
+) {
+  setAccessToken(session.accessToken);
+  setUser(session.user);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUserResponse | null>(null)
-  const [accessToken, setTokenState] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<AuthUserResponse | null>(null);
+  const [accessToken, setTokenState] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const apply = useCallback((session: AuthSessionResponse) => {
-    applySession(session, setUser)
-    setTokenState(session.accessToken)
-  }, [])
+    applySession(session, setUser);
+    setTokenState(session.accessToken);
+  }, []);
 
   // Auto-refresh from HTTP-only cookie on first load
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
 
     async function bootstrap() {
       try {
-        const session = await refreshSession()
-        if (!cancelled) apply(session)
+        const session = await refreshSession();
+        if (!cancelled) apply(session);
       } catch {
         if (!cancelled) {
-          setAccessToken(null)
-          setUser(null)
-          setTokenState(null)
+          setAccessToken(null);
+          setUser(null);
+          setTokenState(null);
         }
       } finally {
-        if (!cancelled) setIsLoading(false)
+        if (!cancelled) setIsLoading(false);
       }
     }
 
-    void bootstrap()
+    void bootstrap();
     return () => {
-      cancelled = true
-    }
-  }, [apply])
+      cancelled = true;
+    };
+  }, [apply]);
 
   const loginWithGoogle = useCallback(async () => {
-    const { url } = await startOAuth('google')
-    window.location.href = url
-  }, [])
+    const { url } = await startOAuth("google");
+    window.location.href = url;
+  }, []);
 
   const loginWithGitHub = useCallback(async () => {
-    const { url } = await startOAuth('github')
-    window.location.href = url
-  }, [])
+    const { url } = await startOAuth("github");
+    window.location.href = url;
+  }, []);
 
   const sendMagicLink = useCallback(async (email: string) => {
-    await requestMagicLink(email)
-  }, [])
+    await requestMagicLink(email);
+  }, []);
 
   const completeFromCallback = useCallback(
     async (params: {
-      code?: string | null
-      accessToken?: string | null
-      tokenHash?: string | null
-      type?: string | null
+      code?: string | null;
+      accessToken?: string | null;
+      tokenHash?: string | null;
+      type?: string | null;
     }) => {
-      let session: AuthSessionResponse
+      let session: AuthSessionResponse;
       if (params.code) {
-        session = await completeAuthWithCode(params.code)
+        session = await completeAuthWithCode(params.code);
       } else if (params.tokenHash) {
         const type =
-          params.type === 'magiclink' || params.type === 'email' ? params.type : 'email'
-        session = await completeAuthWithTokenHash(params.tokenHash, type)
+          params.type === "magiclink" || params.type === "email"
+            ? params.type
+            : "email";
+        session = await completeAuthWithTokenHash(params.tokenHash, type);
       } else if (params.accessToken) {
-        session = await completeAuthWithAccessToken(params.accessToken)
+        session = await completeAuthWithAccessToken(params.accessToken);
       } else {
-        throw new Error('Missing auth credentials in callback')
+        throw new Error("Missing auth credentials in callback");
       }
-      apply(session)
+      apply(session);
     },
-    [apply]
-  )
+    [apply],
+  );
 
   const logout = useCallback(async () => {
     // Best-effort server invalidation; always clear client session afterward.
     // Network failures cannot revoke a cookie we never reached — user still
     // must appear logged out locally.
     try {
-      await logoutRequest()
+      await logoutRequest();
     } catch {
       // Server logout failed (offline / 5xx). Local session still cleared below.
     } finally {
-      setAccessToken(null)
-      setUser(null)
-      setTokenState(null)
+      setAccessToken(null);
+      setUser(null);
+      setTokenState(null);
     }
-  }, [])
+  }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -154,16 +159,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       sendMagicLink,
       completeFromCallback,
       logout,
-    ]
-  )
+    ],
+  );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext)
+  const ctx = useContext(AuthContext);
   if (!ctx) {
-    throw new Error('useAuth must be used within AuthProvider')
+    throw new Error("useAuth must be used within AuthProvider");
   }
-  return ctx
+  return ctx;
 }

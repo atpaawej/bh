@@ -1,14 +1,14 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 /**
  * Validates that a date string represents a Friday in the future.
  */
 function isFutureFriday(dateStr: string): boolean {
-  const date = new Date(dateStr)
-  if (Number.isNaN(date.getTime())) return false
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return false;
   // getUTCDay: 5 = Friday
-  if (date.getUTCDay() !== 5) return false
-  return date.getTime() > Date.now()
+  if (date.getUTCDay() !== 5) return false;
+  return date.getTime() > Date.now();
 }
 
 export const createProductSchema = z.object({
@@ -26,12 +26,12 @@ export const createProductSchema = z.object({
     .string()
     .datetime()
     .refine(isFutureFriday, {
-      message: 'scheduledFor must be a Friday date in the future',
+      message: "scheduledFor must be a Friday date in the future",
     })
     .optional(),
-})
+});
 
-export type CreateProductInput = z.infer<typeof createProductSchema>
+export type CreateProductInput = z.infer<typeof createProductSchema>;
 
 /**
  * Schema for updating an existing product.
@@ -53,13 +53,13 @@ export const updateProductSchema = z
       .string()
       .datetime()
       .refine(isFutureFriday, {
-        message: 'scheduledFor must be a Friday date in the future',
+        message: "scheduledFor must be a Friday date in the future",
       })
       .optional()
       .nullable(),
   })
   .refine((data) => Object.keys(data).length > 0, {
-    message: 'At least one field must be provided for update',
-  })
+    message: "At least one field must be provided for update",
+  });
 
-export type UpdateProductInput = z.infer<typeof updateProductSchema>
+export type UpdateProductInput = z.infer<typeof updateProductSchema>;

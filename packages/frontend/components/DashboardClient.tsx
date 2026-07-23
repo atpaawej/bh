@@ -40,7 +40,22 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
     classes:
       "rounded-full bg-deep-green/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-deep-green",
   },
-};
+} satisfies Record<string, StatusConfig>;
+
+function getStatusConfig(status: string): StatusConfig {
+  const cfg = STATUS_CONFIG[status];
+  if (!cfg) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(`Unknown product status: "${status}"`);
+    }
+    return {
+      label: status,
+      classes:
+        "rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500",
+    };
+  }
+  return cfg;
+}
 
 type DashboardState = "loading" | "error" | "empty" | "success";
 
@@ -99,16 +114,21 @@ function DashboardContent() {
     );
   }
 
-  if (state === "empty") {
-    return (
-      <div className="mx-auto max-w-container px-6 pb-20 pt-12 md:pt-16">
-        <div className="mb-10">
-          <p className="mono-label mb-2 text-xs text-muted">DASHBOARD</p>
-          <h1 className="font-display text-4xl tracking-tight text-ink md:text-5xl">
-            My products
-          </h1>
-        </div>
+  return (
+    <div className="mx-auto max-w-container px-6 pb-20 pt-12 md:pt-16">
+      <div className="mb-10">
+        <p className="mono-label mb-2 text-xs text-muted">DASHBOARD</p>
+        <h1 className="font-display text-4xl tracking-tight text-ink md:text-5xl">
+          My products
+        </h1>
+        {state === "success" && (
+          <p className="mt-2 text-body-muted">
+            {products.length} {products.length === 1 ? "product" : "products"}
+          </p>
+        )}
+      </div>
 
+      {state === "empty" && (
         <div className="rounded-sm bg-soft-stone px-8 py-20 text-center">
           <p className="font-display text-2xl tracking-tight text-ink">
             You haven&apos;t launched anything yet
@@ -123,105 +143,94 @@ function DashboardContent() {
             Launch your first product
           </Link>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mx-auto max-w-container px-6 pb-20 pt-12 md:pt-16">
-      <div className="mb-8">
-        <p className="mono-label mb-2 text-xs text-muted">DASHBOARD</p>
-        <h1 className="font-display text-4xl tracking-tight text-ink md:text-5xl">
-          My products
-        </h1>
-        <p className="mt-2 text-body-muted">
-          {products.length}{" "}
-          {products.length === 1 ? "product" : "products"}
-        </p>
-      </div>
+      )}
 
       {/* Product list — table-like layout */}
-      <div className="overflow-hidden rounded-sm border border-hairline">
-        {/* Table header */}
-        <div className="hidden border-b border-hairline bg-soft-stone/50 px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted md:grid md:grid-cols-[2fr_100px_80px_80px_100px_60px]">
-          <span>Product</span>
-          <span className="text-center">Status</span>
-          <span className="text-center">Votes</span>
-          <span className="text-center">Comments</span>
-          <span className="text-center">Launched</span>
-          <span className="text-right">Edit</span>
+      {state === "success" && (
+        <div className="overflow-hidden rounded-sm border border-hairline">
+          {/* Table header */}
+          <div className="hidden border-b border-hairline bg-soft-stone/50 px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted md:grid md:grid-cols-[2fr_100px_80px_80px_100px_60px]">
+            <span>Product</span>
+            <span className="text-center">Status</span>
+            <span className="text-center">Votes</span>
+            <span className="text-center">Comments</span>
+            <span className="text-center">Launched</span>
+            <span className="text-right">Edit</span>
+          </div>
+
+          {products.map((product, i) => {
+            const statusCfg = getStatusConfig(product.status);
+            const isLast = i === products.length - 1;
+
+            return (
+              <div
+                key={product.id}
+                className={`grid grid-cols-1 gap-3 px-6 py-5 md:grid-cols-[2fr_100px_80px_80px_100px_60px] md:items-center md:gap-0 ${
+                  !isLast ? "border-b border-hairline" : ""
+                }`}
+              >
+                {/* Product name + tagline */}
+                <div className="min-w-0">
+                  <Link
+                    href={`/products/${product.slug}`}
+                    className="truncate text-sm font-medium text-ink transition hover:text-primary"
+                  >
+                    {product.name}
+                  </Link>
+                  <p className="truncate text-xs text-muted">
+                    {product.tagline}
+                  </p>
+                </div>
+
+                {/* Status — mobile label */}
+                <div className="flex items-center gap-2 md:justify-center">
+                  <span className="text-xs text-muted md:hidden">Status</span>
+                  <span className={statusCfg.classes}>{statusCfg.label}</span>
+                </div>
+
+                {/* Votes */}
+                <div className="flex items-center gap-2 md:justify-center">
+                  <span className="text-xs text-muted md:hidden">Votes</span>
+                  <span className="text-sm text-ink">{product.voteCount}</span>
+                </div>
+
+                {/* Comments */}
+                <div className="flex items-center gap-2 md:justify-center">
+                  <span className="text-xs text-muted md:hidden">Comments</span>
+                  <span className="text-sm text-ink">
+                    {product.commentCount}
+                  </span>
+                </div>
+
+                {/* Launch date */}
+                <div className="flex items-center gap-2 md:justify-center">
+                  <span className="text-xs text-muted md:hidden">Launched</span>
+                  <span className="text-sm text-ink">
+                    {formatDate(product.launchedAt || null)}
+                  </span>
+                </div>
+
+                {/* Edit link */}
+                <div className="flex items-center justify-end gap-2 md:justify-end">
+                  <Link
+                    href={`/products/${product.slug}/edit`}
+                    className="inline-flex items-center gap-1 text-sm text-muted transition hover:text-ink"
+                    title={`Edit ${product.name}`}
+                  >
+                    <Pencil className="h-4 w-4" strokeWidth={1.5} />
+                    <span className="text-xs md:hidden">Edit</span>
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
         </div>
-
-        {products.map((product, i) => {
-          const statusCfg = STATUS_CONFIG[product.status] ?? STATUS_CONFIG.draft;
-          const isLast = i === products.length - 1;
-
-          return (
-            <div
-              key={product.id}
-              className={`grid grid-cols-1 gap-3 px-6 py-5 md:grid-cols-[2fr_100px_80px_80px_100px_60px] md:items-center md:gap-0 ${
-                !isLast ? "border-b border-hairline" : ""
-              }`}
-            >
-              {/* Product name + tagline */}
-              <div className="min-w-0">
-                <Link
-                  href={`/products/${product.slug}`}
-                  className="truncate text-sm font-medium text-ink transition hover:text-primary"
-                >
-                  {product.name}
-                </Link>
-                <p className="truncate text-xs text-muted">{product.tagline}</p>
-              </div>
-
-              {/* Status — mobile label */}
-              <div className="flex items-center gap-2 md:justify-center">
-                <span className="text-xs text-muted md:hidden">Status</span>
-                <span className={statusCfg.classes}>{statusCfg.label}</span>
-              </div>
-
-              {/* Votes */}
-              <div className="flex items-center gap-2 md:justify-center">
-                <span className="text-xs text-muted md:hidden">Votes</span>
-                <span className="text-sm text-ink">{product.voteCount}</span>
-              </div>
-
-              {/* Comments */}
-              <div className="flex items-center gap-2 md:justify-center">
-                <span className="text-xs text-muted md:hidden">Comments</span>
-                <span className="text-sm text-ink">
-                  {product.commentCount}
-                </span>
-              </div>
-
-              {/* Launch date */}
-              <div className="flex items-center gap-2 md:justify-center">
-                <span className="text-xs text-muted md:hidden">Launched</span>
-                <span className="text-sm text-ink">
-                  {formatDate(product.launchedAt || null)}
-                </span>
-              </div>
-
-              {/* Edit link */}
-              <div className="flex items-center justify-end gap-2 md:justify-end">
-                <Link
-                  href={`/products/${product.slug}/edit`}
-                  className="inline-flex items-center gap-1 text-sm text-muted transition hover:text-ink"
-                  title={`Edit ${product.name}`}
-                >
-                  <Pencil className="h-4 w-4" strokeWidth={1.5} />
-                  <span className="text-xs md:hidden">Edit</span>
-                </Link>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      )}
     </div>
   );
 }
 
-export function DashboardSkeleton() {
+function DashboardSkeleton() {
   return (
     <div className="mx-auto max-w-container animate-pulse px-6 pb-20 pt-12 md:pt-16">
       <div className="mb-8 space-y-3">

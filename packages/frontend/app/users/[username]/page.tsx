@@ -36,7 +36,8 @@ export async function generateMetadata({
 
   const name = profile.user.name;
   const title = `${name} — BharatHunt`;
-  const description = profile.user.bio ?? `View ${name}'s products on BharatHunt`;
+  const description =
+    profile.user.bio ?? `View ${name}'s products on BharatHunt`;
 
   return {
     title,

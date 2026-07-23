@@ -1,27 +1,27 @@
-import crypto from 'node:crypto'
-import { v2 as cloudinary } from 'cloudinary'
-import { config } from '../config'
+import crypto from "node:crypto";
+import { v2 as cloudinary } from "cloudinary";
+import { config } from "../config";
 
 // Configure once at import
 cloudinary.config({
   cloud_name: config.CLOUDINARY_CLOUD_NAME,
   api_key: config.CLOUDINARY_API_KEY,
   api_secret: config.CLOUDINARY_API_SECRET,
-})
+});
 
 export interface SignedUploadUrl {
   /** The Cloudinary upload endpoint URL */
-  url: string
+  url: string;
   /** The generated public ID (includes folder prefix) */
-  publicId: string
+  publicId: string;
   /** HMAC-SHA1 signature for the upload params */
-  signature: string
+  signature: string;
   /** Unix timestamp of when the signature was generated */
-  timestamp: number
+  timestamp: number;
   /** Cloudinary cloud name — needed by some widgets */
-  cloudName: string
+  cloudName: string;
   /** The API key — needed by some widgets */
-  apiKey: string
+  apiKey: string;
 }
 
 /**
@@ -34,18 +34,18 @@ export interface SignedUploadUrl {
  * @param folder - The Cloudinary folder to upload into (e.g. "logos", "heroes", "gallery")
  */
 export function generateSignedUploadUrl(folder: string): SignedUploadUrl {
-  const timestamp = Math.round(Date.now() / 1000)
-  const publicId = `${folder}/${crypto.randomBytes(16).toString('hex')}`
+  const timestamp = Math.round(Date.now() / 1000);
+  const publicId = `${folder}/${crypto.randomBytes(16).toString("hex")}`;
 
   const params: Record<string, string | number> = {
     timestamp,
     public_id: publicId,
-  }
+  };
 
   const signature = cloudinary.utils.api_sign_request(
     params,
-    config.CLOUDINARY_API_SECRET
-  )
+    config.CLOUDINARY_API_SECRET,
+  );
 
   return {
     url: `https://api.cloudinary.com/v1_1/${config.CLOUDINARY_CLOUD_NAME}/auto/upload`,
@@ -54,5 +54,5 @@ export function generateSignedUploadUrl(folder: string): SignedUploadUrl {
     timestamp,
     cloudName: config.CLOUDINARY_CLOUD_NAME,
     apiKey: config.CLOUDINARY_API_KEY,
-  }
+  };
 }

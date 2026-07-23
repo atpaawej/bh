@@ -87,9 +87,7 @@ export function CommentInput({
         />
         <span
           className={`absolute bottom-2 right-3 text-[11px] ${
-            body.length > MAX_COMMENT_LENGTH
-              ? "text-error"
-              : "text-muted"
+            body.length > MAX_COMMENT_LENGTH ? "text-error" : "text-muted"
           }`}
         >
           {body.length}/{MAX_COMMENT_LENGTH}

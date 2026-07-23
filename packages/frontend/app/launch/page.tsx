@@ -1,162 +1,179 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
-import { CATEGORIES, type CategorySlug } from '@bh/shared'
-import type { CreateProductInput } from '@bh/shared'
-import { ProtectedRoute } from '../../components/auth/ProtectedRoute'
-import { useAuth } from '../../lib/auth/AuthContext'
-import { createProduct, fetchCategories, fetchUploadUrl } from '../../lib/api'
-import type { CategoryResponse } from '@bh/shared'
+import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { CATEGORIES, type CategorySlug } from "@bh/shared";
+import type { CreateProductInput } from "@bh/shared";
+import { ProtectedRoute } from "../../components/auth/ProtectedRoute";
+import { useAuth } from "../../lib/auth/AuthContext";
+import { createProduct, fetchCategories, fetchUploadUrl } from "../../lib/api";
+import type { CategoryResponse } from "@bh/shared";
 
 function toCategoryMap(cats: CategoryResponse[]) {
-  const map = new Map<string, string>()
+  const map = new Map<string, string>();
   for (const c of cats) {
-    map.set(c.slug, c.id)
-    map.set(c.id, c.id)
+    map.set(c.slug, c.id);
+    map.set(c.id, c.id);
   }
-  return map
+  return map;
 }
 
 function getNextFriday(): string {
-  const now = new Date()
-  const friday = new Date(now)
-  friday.setUTCDate(friday.getUTCDate() + ((5 + 7 - friday.getUTCDay()) % 7 || 7))
-  friday.setUTCHours(0, 0, 0, 0)
-  return friday.toISOString()
+  const now = new Date();
+  const friday = new Date(now);
+  friday.setUTCDate(
+    friday.getUTCDate() + ((5 + 7 - friday.getUTCDay()) % 7 || 7),
+  );
+  friday.setUTCHours(0, 0, 0, 0);
+  return friday.toISOString();
 }
 
-type SubmitMode = 'draft' | 'publish' | 'schedule'
+type SubmitMode = "draft" | "publish" | "schedule";
 
 export default function LaunchPage() {
-  const router = useRouter()
-  const { isAuthenticated } = useAuth()
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
-  const [categories, setCategories] = useState<CategoryResponse[]>([])
-  const [categoryMap, setCategoryMap] = useState<Map<string, string>>(new Map())
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]> | null>(null)
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [categoryMap, setCategoryMap] = useState<Map<string, string>>(
+    new Map(),
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<
+    string,
+    string[]
+  > | null>(null);
 
   // ── Form fields ──
-  const [name, setName] = useState('')
-  const [tagline, setTagline] = useState('')
-  const [description, setDescription] = useState('')
-  const [websiteUrl, setWebsiteUrl] = useState('')
-  const [demoUrl, setDemoUrl] = useState('')
-  const [categorySlug, setCategorySlug] = useState<CategorySlug>('developer-tools')
-  const [logoUrl, setLogoUrl] = useState('')
-  const [heroImageUrl, setHeroImageUrl] = useState('')
-  const [galleryUrls, setGalleryUrls] = useState<string[]>([])
-  const [videoUrl, setVideoUrl] = useState('')
+  const [name, setName] = useState("");
+  const [tagline, setTagline] = useState("");
+  const [description, setDescription] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [demoUrl, setDemoUrl] = useState("");
+  const [categorySlug, setCategorySlug] =
+    useState<CategorySlug>("developer-tools");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [heroImageUrl, setHeroImageUrl] = useState("");
+  const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
+  const [videoUrl, setVideoUrl] = useState("");
 
   // ── Image uploads ──
-  const [uploadingLogo, setUploadingLogo] = useState(false)
-  const [uploadingHero, setUploadingHero] = useState(false)
-  const [uploadingGallery, setUploadingGallery] = useState(false)
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingHero, setUploadingHero] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
 
   useEffect(() => {
     fetchCategories()
       .then((cats) => {
-        setCategories(cats)
-        setCategoryMap(toCategoryMap(cats))
+        setCategories(cats);
+        setCategoryMap(toCategoryMap(cats));
         if (cats.length > 0) {
-          setCategorySlug(cats[0].slug as CategorySlug)
+          setCategorySlug(cats[0].slug as CategorySlug);
         }
       })
       .catch(() => {
-        setError('Failed to load categories')
-      })
-  }, [])
+        setError("Failed to load categories");
+      });
+  }, []);
 
-  const getSignedUrl = useCallback(async (folder: 'logos' | 'heroes' | 'gallery') => {
-    return fetchUploadUrl(folder)
-  }, [])
+  const getSignedUrl = useCallback(
+    async (folder: "logos" | "heroes" | "gallery") => {
+      return fetchUploadUrl(folder);
+    },
+    [],
+  );
 
   const uploadToCloudinary = useCallback(
-    async (file: File, folder: 'logos' | 'heroes' | 'gallery') => {
-      const signed = await getSignedUrl(folder)
+    async (file: File, folder: "logos" | "heroes" | "gallery") => {
+      const signed = await getSignedUrl(folder);
 
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('api_key', signed.apiKey)
-      formData.append('timestamp', String(signed.timestamp))
-      formData.append('signature', signed.signature)
-      formData.append('public_id', signed.publicId)
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", signed.apiKey);
+      formData.append("timestamp", String(signed.timestamp));
+      formData.append("signature", signed.signature);
+      formData.append("public_id", signed.publicId);
 
-      const res = await fetch(signed.url, { method: 'POST', body: formData })
+      const res = await fetch(signed.url, { method: "POST", body: formData });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error((body as { error?: { message?: string } }).error?.message ?? 'Upload failed')
+        const body = await res.json().catch(() => ({}));
+        throw new Error(
+          (body as { error?: { message?: string } }).error?.message ??
+            "Upload failed",
+        );
       }
 
-      const data = (await res.json()) as { secure_url: string; public_id: string }
-      return data.secure_url
+      const data = (await res.json()) as {
+        secure_url: string;
+        public_id: string;
+      };
+      return data.secure_url;
     },
-    [getSignedUrl]
-  )
+    [getSignedUrl],
+  );
 
   const handleFileUpload = useCallback(
     async (
       e: React.ChangeEvent<HTMLInputElement>,
-      folder: 'logos' | 'heroes' | 'gallery',
+      folder: "logos" | "heroes" | "gallery",
       setter: (url: string) => void,
-      setUploading: (v: boolean) => void
+      setUploading: (v: boolean) => void,
     ) => {
-      const file = e.target.files?.[0]
-      if (!file) return
-      setUploading(true)
-      setError(null)
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setUploading(true);
+      setError(null);
       try {
-        const url = await uploadToCloudinary(file, folder)
-        setter(url)
+        const url = await uploadToCloudinary(file, folder);
+        setter(url);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Upload failed')
+        setError(err instanceof Error ? err.message : "Upload failed");
       } finally {
-        setUploading(false)
+        setUploading(false);
       }
     },
-    [uploadToCloudinary]
-  )
+    [uploadToCloudinary],
+  );
 
   const handleGalleryUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files
-      if (!files?.length) return
-      setUploadingGallery(true)
-      setError(null)
+      const files = e.target.files;
+      if (!files?.length) return;
+      setUploadingGallery(true);
+      setError(null);
       try {
-        const remaining = 5 - galleryUrls.length
-        const toUpload = Array.from(files).slice(0, remaining)
+        const remaining = 5 - galleryUrls.length;
+        const toUpload = Array.from(files).slice(0, remaining);
         const urls = await Promise.all(
-          toUpload.map((file) => uploadToCloudinary(file, 'gallery'))
-        )
-        setGalleryUrls((prev) => [...prev, ...urls].slice(0, 5))
+          toUpload.map((file) => uploadToCloudinary(file, "gallery")),
+        );
+        setGalleryUrls((prev) => [...prev, ...urls].slice(0, 5));
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Upload failed')
+        setError(err instanceof Error ? err.message : "Upload failed");
       } finally {
-        setUploadingGallery(false)
+        setUploadingGallery(false);
       }
     },
-    [galleryUrls.length, uploadToCloudinary]
-  )
+    [galleryUrls.length, uploadToCloudinary],
+  );
 
   const removeGalleryImage = useCallback((index: number) => {
-    setGalleryUrls((prev) => prev.filter((_, i) => i !== index))
-  }, [])
+    setGalleryUrls((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
   async function handleSubmit(mode: SubmitMode) {
-    setError(null)
-    setFieldErrors(null)
+    setError(null);
+    setFieldErrors(null);
 
-    if (isSubmitting) return
-    setIsSubmitting(true)
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     try {
-      const categoryId = categoryMap.get(categorySlug)
+      const categoryId = categoryMap.get(categorySlug);
       if (!categoryId) {
-        setError('Invalid category selected')
-        return
+        setError("Invalid category selected");
+        return;
       }
 
       const input: CreateProductInput = {
@@ -167,37 +184,40 @@ export default function LaunchPage() {
         categoryId,
         logoUrl,
         heroImageUrl,
-      }
+      };
 
-      if (demoUrl.trim()) input.demoUrl = demoUrl.trim()
-      if (galleryUrls.length > 0) input.galleryUrls = galleryUrls
-      if (videoUrl.trim()) input.videoUrl = videoUrl.trim()
+      if (demoUrl.trim()) input.demoUrl = demoUrl.trim();
+      if (galleryUrls.length > 0) input.galleryUrls = galleryUrls;
+      if (videoUrl.trim()) input.videoUrl = videoUrl.trim();
 
-      if (mode === 'schedule') {
-        input.scheduledFor = getNextFriday()
+      if (mode === "schedule") {
+        input.scheduledFor = getNextFriday();
       }
       // mode === 'draft': no launchedAt, stays draft
       // mode === 'publish': no scheduledFor, launches immediately
 
-      const product = await createProduct(input)
-      router.push(`/products/${product.slug}`)
+      const product = await createProduct(input);
+      router.push(`/products/${product.slug}`);
     } catch (err: unknown) {
-      const apiErr = err as { message?: string; details?: Record<string, string[]> }
-      setError(apiErr.message ?? 'Failed to create product')
+      const apiErr = err as {
+        message?: string;
+        details?: Record<string, string[]>;
+      };
+      setError(apiErr.message ?? "Failed to create product");
       if (apiErr.details) {
-        setFieldErrors(apiErr.details)
+        setFieldErrors(apiErr.details);
       }
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
   const inputClasses =
-    'w-full rounded-border bg-canvas px-4 py-2.5 text-sm text-ink outline-none ring-1 ring-hairline transition focus:ring-2 focus:ring-primary/30 placeholder:text-muted'
+    "w-full rounded-border bg-canvas px-4 py-2.5 text-sm text-ink outline-none ring-1 ring-hairline transition focus:ring-2 focus:ring-primary/30 placeholder:text-muted";
 
-  const labelClasses = 'text-sm font-medium text-ink'
+  const labelClasses = "text-sm font-medium text-ink";
 
-  const errorClasses = 'mt-1 text-xs text-error'
+  const errorClasses = "mt-1 text-xs text-error";
 
   return (
     <ProtectedRoute>
@@ -218,8 +238,8 @@ export default function LaunchPage() {
 
         <form
           onSubmit={(e: FormEvent) => {
-            e.preventDefault()
-            handleSubmit('publish')
+            e.preventDefault();
+            handleSubmit("publish");
           }}
           className="space-y-6"
         >
@@ -239,9 +259,13 @@ export default function LaunchPage() {
               required
             />
             {fieldErrors?.name?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
+              <p key={msg} className={errorClasses}>
+                {msg}
+              </p>
             ))}
-            <p className="mt-1 text-right text-xs text-muted">{name.length}/100 (min 3)</p>
+            <p className="mt-1 text-right text-xs text-muted">
+              {name.length}/100 (min 3)
+            </p>
           </div>
 
           {/* ── Tagline ── */}
@@ -260,9 +284,13 @@ export default function LaunchPage() {
               required
             />
             {fieldErrors?.tagline?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
+              <p key={msg} className={errorClasses}>
+                {msg}
+              </p>
             ))}
-            <p className="mt-1 text-right text-xs text-muted">{tagline.length}/150 (min 10)</p>
+            <p className="mt-1 text-right text-xs text-muted">
+              {tagline.length}/150 (min 10)
+            </p>
           </div>
 
           {/* ── Description ── */}
@@ -280,9 +308,13 @@ export default function LaunchPage() {
               required
             />
             {fieldErrors?.description?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
+              <p key={msg} className={errorClasses}>
+                {msg}
+              </p>
             ))}
-            <p className="mt-1 text-right text-xs text-muted">{description.length}/5000 (min 50)</p>
+            <p className="mt-1 text-right text-xs text-muted">
+              {description.length}/5000 (min 50)
+            </p>
           </div>
 
           {/* ── Website URL ── */}
@@ -300,9 +332,13 @@ export default function LaunchPage() {
               required
             />
             {fieldErrors?.websiteUrl?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
+              <p key={msg} className={errorClasses}>
+                {msg}
+              </p>
             ))}
-            <p className="mt-1 text-xs text-muted">Must be a valid URL (e.g. https://example.com)</p>
+            <p className="mt-1 text-xs text-muted">
+              Must be a valid URL (e.g. https://example.com)
+            </p>
           </div>
 
           {/* ── Demo URL ── */}
@@ -319,9 +355,13 @@ export default function LaunchPage() {
               className={inputClasses}
             />
             {fieldErrors?.demoUrl?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
+              <p key={msg} className={errorClasses}>
+                {msg}
+              </p>
             ))}
-            <p className="mt-1 text-xs text-muted">Optional — must be a valid URL if provided</p>
+            <p className="mt-1 text-xs text-muted">
+              Optional — must be a valid URL if provided
+            </p>
           </div>
 
           {/* ── Category ── */}
@@ -342,7 +382,9 @@ export default function LaunchPage() {
               ))}
             </select>
             {fieldErrors?.categoryId?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
+              <p key={msg} className={errorClasses}>
+                {msg}
+              </p>
             ))}
           </div>
 
@@ -361,7 +403,7 @@ export default function LaunchPage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setLogoUrl('')}
+                  onClick={() => setLogoUrl("")}
                   className="text-xs text-muted underline-offset-2 hover:text-error hover:underline"
                 >
                   Remove
@@ -370,19 +412,23 @@ export default function LaunchPage() {
             ) : (
               <label className="mt-2 flex cursor-pointer items-center justify-center rounded-border border-2 border-dashed border-hairline px-4 py-6 transition hover:border-primary/30">
                 <span className="text-sm text-muted">
-                  {uploadingLogo ? 'Uploading…' : 'Click to upload logo'}
+                  {uploadingLogo ? "Uploading…" : "Click to upload logo"}
                 </span>
                 <input
                   type="file"
                   accept="image/*"
                   className="sr-only"
-                  onChange={(e) => handleFileUpload(e, 'logos', setLogoUrl, setUploadingLogo)}
+                  onChange={(e) =>
+                    handleFileUpload(e, "logos", setLogoUrl, setUploadingLogo)
+                  }
                   disabled={uploadingLogo}
                 />
               </label>
             )}
             {fieldErrors?.logoUrl?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
+              <p key={msg} className={errorClasses}>
+                {msg}
+              </p>
             ))}
           </div>
 
@@ -403,7 +449,7 @@ export default function LaunchPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setHeroImageUrl('')}
+                  onClick={() => setHeroImageUrl("")}
                   className="mt-2 text-xs text-muted underline-offset-2 hover:text-error hover:underline"
                 >
                   Remove
@@ -412,33 +458,52 @@ export default function LaunchPage() {
             ) : (
               <label className="mt-2 flex cursor-pointer items-center justify-center rounded-border border-2 border-dashed border-hairline px-4 py-6 transition hover:border-primary/30">
                 <span className="text-sm text-muted">
-                  {uploadingHero ? 'Uploading…' : 'Click to upload hero image (16:9 recommended)'}
+                  {uploadingHero
+                    ? "Uploading…"
+                    : "Click to upload hero image (16:9 recommended)"}
                 </span>
                 <input
                   type="file"
                   accept="image/*"
                   className="sr-only"
-                  onChange={(e) => handleFileUpload(e, 'heroes', setHeroImageUrl, setUploadingHero)}
+                  onChange={(e) =>
+                    handleFileUpload(
+                      e,
+                      "heroes",
+                      setHeroImageUrl,
+                      setUploadingHero,
+                    )
+                  }
                   disabled={uploadingHero}
                 />
               </label>
             )}
             {fieldErrors?.heroImageUrl?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
+              <p key={msg} className={errorClasses}>
+                {msg}
+              </p>
             ))}
           </div>
 
           {/* ── Gallery Uploads ── */}
           <div>
             <label className={labelClasses}>
-              Gallery images <span className="text-muted">(optional, max 5)</span>
+              Gallery images{" "}
+              <span className="text-muted">(optional, max 5)</span>
             </label>
             {galleryUrls.length > 0 ? (
               <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {galleryUrls.map((url, i) => (
-                  <div key={`${url}-${i}`} className="group relative aspect-video overflow-hidden rounded-md bg-soft-stone">
+                  <div
+                    key={`${url}-${i}`}
+                    className="group relative aspect-video overflow-hidden rounded-md bg-soft-stone"
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt={`Gallery ${i + 1}`} className="h-full w-full object-cover" />
+                    <img
+                      src={url}
+                      alt={`Gallery ${i + 1}`}
+                      className="h-full w-full object-cover"
+                    />
                     <button
                       type="button"
                       onClick={() => removeGalleryImage(i)}
@@ -451,7 +516,7 @@ export default function LaunchPage() {
                 ))}
                 {galleryUrls.length < 5 ? (
                   <label className="flex cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-hairline bg-transparent text-sm text-muted transition hover:border-primary/30">
-                    {uploadingGallery ? 'Uploading…' : '+ Add'}
+                    {uploadingGallery ? "Uploading…" : "+ Add"}
                     <input
                       type="file"
                       accept="image/*"
@@ -465,7 +530,9 @@ export default function LaunchPage() {
             ) : (
               <label className="mt-2 flex cursor-pointer items-center justify-center rounded-border border-2 border-dashed border-hairline px-4 py-6 transition hover:border-primary/30">
                 <span className="text-sm text-muted">
-                  {uploadingGallery ? 'Uploading…' : 'Click to upload gallery images'}
+                  {uploadingGallery
+                    ? "Uploading…"
+                    : "Click to upload gallery images"}
                 </span>
                 <input
                   type="file"
@@ -478,7 +545,9 @@ export default function LaunchPage() {
               </label>
             )}
             {fieldErrors?.galleryUrls?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
+              <p key={msg} className={errorClasses}>
+                {msg}
+              </p>
             ))}
           </div>
 
@@ -496,20 +565,24 @@ export default function LaunchPage() {
               className={inputClasses}
             />
             {fieldErrors?.videoUrl?.map((msg) => (
-              <p key={msg} className={errorClasses}>{msg}</p>
+              <p key={msg} className={errorClasses}>
+                {msg}
+              </p>
             ))}
-            <p className="mt-1 text-xs text-muted">Optional — must be a valid URL if provided</p>
+            <p className="mt-1 text-xs text-muted">
+              Optional — must be a valid URL if provided
+            </p>
           </div>
 
           {/* ── Submit Actions ── */}
           <div className="flex flex-col gap-3 border-t border-hairline pt-6 sm:flex-row">
             <button
               type="button"
-              onClick={() => handleSubmit('draft')}
+              onClick={() => handleSubmit("draft")}
               disabled={isSubmitting}
               className="inline-flex items-center justify-center rounded-pill border border-hairline px-6 py-3 text-sm font-medium text-ink transition hover:bg-soft-stone disabled:opacity-50"
             >
-              {isSubmitting ? 'Saving…' : 'Save as draft'}
+              {isSubmitting ? "Saving…" : "Save as draft"}
             </button>
 
             <button
@@ -517,20 +590,20 @@ export default function LaunchPage() {
               disabled={isSubmitting}
               className="inline-flex flex-1 items-center justify-center rounded-pill bg-primary px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
             >
-              {isSubmitting ? 'Publishing…' : 'Publish now'}
+              {isSubmitting ? "Publishing…" : "Publish now"}
             </button>
 
             <button
               type="button"
-              onClick={() => handleSubmit('schedule')}
+              onClick={() => handleSubmit("schedule")}
               disabled={isSubmitting}
               className="inline-flex items-center justify-center rounded-pill border border-hairline px-6 py-3 text-sm font-medium text-ink transition hover:bg-soft-stone disabled:opacity-50"
             >
-              {isSubmitting ? 'Scheduling…' : 'Schedule for next Friday'}
+              {isSubmitting ? "Scheduling…" : "Schedule for next Friday"}
             </button>
           </div>
         </form>
       </div>
     </ProtectedRoute>
-  )
+  );
 }

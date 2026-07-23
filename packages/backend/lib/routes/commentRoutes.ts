@@ -33,11 +33,7 @@ router.post(
   commentLimiter,
   validate(createCommentSchema),
   asyncHandler(async (req, res) => {
-    await commentService.create(
-      req.user!.id,
-      req.params.slug,
-      req.body,
-    );
+    await commentService.create(req.user!.id, req.params.slug, req.body);
     res.status(204).send();
   }),
 );
