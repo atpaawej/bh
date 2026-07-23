@@ -17,7 +17,7 @@ function formatVotes(count: number): string {
   return String(count);
 }
 
-function formatLaunchDate(iso: string): string {
+function formatLaunchDate(iso: string | null): string {
   if (!iso) return "—";
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
@@ -67,7 +67,7 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
   }, [authLoading, isAuthenticated, initialProduct.slug]);
 
   const embedUrl = product.videoUrl ? toVideoEmbedUrl(product.videoUrl) : null;
-  const descriptionParagraphs = product.description
+  const descriptionParagraphs = (product.description ?? "")
     .split(/\n+/)
     .map((p) => p.trim())
     .filter(Boolean);
@@ -200,7 +200,7 @@ export function ProductDetail({ initialProduct }: ProductDetailProps) {
             ))}
           </section>
 
-          {product.galleryUrls.length > 0 ? (
+          {product.galleryUrls && product.galleryUrls.length > 0 ? (
             <section className="mb-9">
               <h2 className="mb-4 text-xl font-medium tracking-tight text-ink">
                 Gallery

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ProductFeed } from "../components/ProductFeed";
 import { LaunchCta } from "../components/LaunchCta";
 import { CtaBand } from "../components/landing/CtaBand";
@@ -6,6 +7,25 @@ import { MakerStory } from "../components/landing/MakerStory";
 import { TrustStrip } from "../components/landing/TrustStrip";
 import { WhySection } from "../components/landing/WhySection";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "BharatHunt — Discover products built in India",
+  description:
+    "Weekly product discovery for the Indian maker community. Launch, upvote, and discover what India is shipping.",
+  openGraph: {
+    title: "BharatHunt — Discover products built in India",
+    description:
+      "Weekly product discovery for the Indian maker community. Launch, upvote, and discover what India is shipping.",
+    type: "website",
+    siteName: "BharatHunt",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BharatHunt — Discover products built in India",
+    description:
+      "Weekly product discovery for the Indian maker community. Launch, upvote, and discover what India is shipping.",
+  },
+};
 
 export default function HomePage() {
   return (

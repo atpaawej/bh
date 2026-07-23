@@ -6,6 +6,18 @@ export const metadata: Metadata = {
   title: "Leaderboard — BharatHunt",
   description:
     "Community-ranked products by week. See what India is shipping, ranked by votes.",
+  openGraph: {
+    title: "Leaderboard — BharatHunt",
+    description:
+      "Community-ranked products by week. See what India is shipping, ranked by votes.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Leaderboard — BharatHunt",
+    description:
+      "Community-ranked products by week. See what India is shipping, ranked by votes.",
+  },
 };
 
 export default function LeaderboardPage() {

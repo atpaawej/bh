@@ -98,10 +98,10 @@ export function ProductCard({
         </div>
       ) : null}
 
-      <h3 className="mb-2 text-xl font-medium tracking-tight text-ink">
+      <h3 className="mb-2 truncate text-xl font-medium tracking-tight text-ink">
         {product.name}
       </h3>
-      <p className="mb-5 flex-1 text-sm leading-relaxed text-body-muted">
+      <p className="mb-5 flex-1 text-sm leading-relaxed text-body-muted line-clamp-3">
         {product.tagline}
       </p>
 
